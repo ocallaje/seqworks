@@ -1,0 +1,26 @@
+[package]
+name = "seqworks"
+version = "0.0.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "2.0.0-beta", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0-beta", features = [] }
+tauri-plugin-shell = "2.0.0-beta"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.11", features = ["blocking"] }  # For performing HTTP requests
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.21.0"
+futures = "0.3"
+tauri-plugin-websocket = "2.0.0-beta.5"
+suppaftp = "5.3.0"
+csv = "1.1.6"
+ssh2 = "0.9"
+ssh_jumper = "0.4.0"
