@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Spicy Dash - Singe cell RNAseq</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="styles.css" rel="stylesheet">
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery.min.js"></script>
+    <script src="vendor/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="main.js"></script>
+    <script src="app-wide.js"></script>
+
+</head>
+
+<body id="page-top">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <div id="sidebarContent"></div>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <div id="topbarContent"></div>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-4 text-gray-800">Singe Cell RNAseq</h1>
+
+                    <div class="row">
+
+                        <div class="col-lg-6">
+
+                            <!-- Setup -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Setup</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>First choose the type of data you want to process</p>
+                                    
+                                    <div class="my-2"></div>
+                                    <div class="form-group">
+                                        <input type="email" class="form-control form-control-user"
+                                            id="runid" 
+                                            placeholder="Unique Run ID name">
+                                    </div>
+
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Project Folder</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="projectDropdown"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false" >Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="navbarDropdown" id="projectOptions">
+                                                    
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav>   
+                                    
+
+
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Organism</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="Organism"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="genomeDropdown">
+                                                    <a class="dropdown-item" href="#" onclick="updateGenome('mouse')">mouse</a>
+                                                    <a class="dropdown-item" href="#" onclick="updateGenome('human')">human</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                    
+                                    
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Genome Assembly</a>
+                                        <ul class="navbar-nav ml-auto" style="display: none;" id="gAssembly">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="genomeDropdown"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="gencodeDropdown" id="gencodeOptions">
+                                                    <a class="dropdown-item" href="#">Action</a>
+                                                    <a class="dropdown-item" href="#">Another action</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav> 
+
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Assembly Version</a>
+                                        <ul class="navbar-nav ml-auto" style="display: none;" id="vAssembly">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="gencodeDropdown"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">
+                                                    Select
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="gencodeDropdown" id="gencodeVersions">
+                                                    <a class="dropdown-item" href="#">Action</a>
+                                                    <a class="dropdown-item" href="#">Another action</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav> 
+                                    
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Sequencer</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="machine"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="#">MiSeq</a>
+                                                    <a class="dropdown-item" href="#">MiniSeq</a>
+                                                    <a class="dropdown-item" href="#">MiniSeq-Rapid</a>
+                                                    <a class="dropdown-item" href="#">iSeq-100</a>
+                                                    <a class="dropdown-item" href="#">NextSeq-500/550</a>
+                                                    <a class="dropdown-item" href="#">NextSeq-1000/2000</a>
+                                                    <a class="dropdown-item" href="#">NovaSeq-6000</a>
+                                                    <a class="dropdown-item" href="#">NovaSeq-X/X-Plus</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav> 
+
+                                    
+
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Workflow</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="workflowDropdown"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="#" data-value = "standard">standard</a>
+                                                    <a class="dropdown-item" href="#" data-value = "demultiplex">demultiplex</a>
+                                                    <a class="dropdown-item" href="#" data-value = "seurat_only">seurat_only</a>
+                                                    <a class="dropdown-item" href="#" data-value = "inspect">inspect</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav>  
+
+                                </div>
+                            </div>
+
+                            <!-- DESEQ -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Seurat Parameters</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Adjust Seurat-specific parameters here</p>
+                                    
+                                    <div class="form-group">
+                                        <label for="editableInput">min-nfeature:</label>
+                                        <input type="text" class="form-control" id="min-nfeature" placeholder="Default: 200">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">max-nfeature:</label>
+                                        <input type="text" class="form-control" id="max-nfeature" placeholder="Default: 5000">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">max-percent-mt:</label>
+                                        <input type="text" class="form-control" id="max-percent-mt" placeholder="Default: 20">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">max-percent-ribo:</label>
+                                        <input type="text" class="form-control" id="max-percent-ribo" placeholder="Default: 100">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">resolution:</label>
+                                        <input type="text" class="form-control" id="resolution" placeholder="Default: 0 (Auto)">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">num-pcs:</label>
+                                        <input type="text" class="form-control" id="pcs" placeholder="Default: 0 (Auto)">
+                                    </div>
+                                    
+                                    <div class="my-2"></div>
+                                    <a href="#" id="Integrate" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'Integrate')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Integrate</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="nonlinear" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'nonlinear')" data-clicked="false">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </span>
+                                        <span class="text">nonlinear</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="identity" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'identity')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Identity</span>
+                                    </a>
+                                    <div class="my-2"></div>
+                                    <a href="#" id="condition" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'condition')" data-clicked="false">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">condition_analysis</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Inspect -->
+                            <div class="card shadow mb-4" id = "inspect_panel" style="display: none;">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Inspect-specific parameters</h6>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <p>For the Inspect workflow</p>
+                                    <div class="form-group">
+                                        <label for="editableInput">Annotation File</label>
+                                        <input type="text" class="form-control" id="annotation_file" placeholder="Default: None">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editableInput">Annotation Category</label>
+                                        <input type="text" class="form-control" id="meta_group" placeholder="Default: seurat_clusters">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">Gene List</label>
+                                        <input type="text" class="form-control" id="inspect_list" placeholder="Default: None">
+                                    </div>
+
+                                    <a href="#" id="DE" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'DE')" data-clicked="false">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </span>
+                                        <span class="text">Perform DE</span>
+                                    </a>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <!-- Params -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Pipeline Parameters</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Select true/fase pipeline parameters for your analysis.</p>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="demultiplex" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'demultiplex')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Demultiplex</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="Chemistry" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'Chemistry')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Chemistry: Chromium V3</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Permit Method</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="permit"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="#">knee</a>
+                                                    <a class="dropdown-item" href="#">force</a>
+                                                    <a class="dropdown-item" href="#">v3</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav> 
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="send_email" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'send_email')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Send Email Notification</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <div class="form-group">
+                                        <input type="email" class="form-control form-control-user"
+                                            id="ccfield" 
+                                            placeholder="Enter Email Address (only for CC)">
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Run -->
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Run Analysis</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Click the button to run the pipeline</p>
+                                    
+                                    <div class="d-flex align-items-center">
+                                        <a href="#" class="btn btn-primary btn-circle btn-lg" id="runsc">
+                                            <i class="fa fa-play"></i>
+                                        </a>
+                                        <div class="ml-5">
+                                            <code id="run_status"></code>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; Jeffrey O'Callaghan 2024</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-primary" href="index.html">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Gencode Updater -->
+    <script>
+        function updateGenome(selectedGenome) {
+            var gencodeOptions = document.getElementById("gencodeOptions");
+            console.log(selectedGenome);
+            document.getElementById("gAssembly").style.display = "inline";
+
+            if (selectedGenome === "mouse") {
+                gencodeOptions.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('genomeDropdown', 'grcm38'); updateVersion('grcm38')">GRCm38</a>
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('genomeDropdown', 'grcm39'); updateVersion('grcm39')">GRCm39</a>
+                `;
+            } else if (selectedGenome === "human") {
+                gencodeOptions.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('genomeDropdown', 'hg38'); updateVersion('hg38')">hg38</a>
+                `;
+            }
+        }
+
+        function updateVersion(selected) {
+            var gencodeOptions = document.getElementById("gencodeVersions");
+            document.getElementById("vAssembly").style.display = "inline";
+
+            if (selected === "grcm38") {
+                gencodeOptions.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('gencodeDropdown', 'vM23');">vM23</a>
+                `;
+            } else if (selected === "grcm39") {
+                gencodeOptions.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('gencodeDropdown', 'vM34')">vM34</a>
+                `;
+            } else if (selected == "hg38") {
+                gencodeOptions.innerHTML = `
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('gencodeDropdown', 'v32')">v32</a>
+                    <a class="dropdown-item" href="#" onclick="updateDropdownValue('gencodeDropdown', 'v45')">v45</a>
+                `;
+            }
+        }
+
+        document.querySelectorAll('.dropdown-item').forEach(function(item) {
+        item.addEventListener('click', function(event) {
+            var selectedValue = event.target.getAttribute('data-value');
+            if (selectedValue === 'inspect') {
+                document.getElementById('inspect_panel').style.display = 'block';
+            } else {
+                document.getElementById('inspect_panel').style.display = 'none';
+            }
+        });
+    });
+
+    </script>
+    
+
+</body>
+
+<!-- Assign function to Run button and Parse project list -->
+<script type="text/javascript"> 
+    document.addEventListener('DOMContentLoaded', async function() {
+        // Attach event listener to the run button 
+        const runbtn = document.getElementById('runsc');
+        runbtn.addEventListener('click', sendSC);
+
+        // Send request for project lists
+        try {
+        const projectList = await request_projects('single_cell');
+        console.log(projectList);
+        var projectOptions = document.getElementById('projectOptions');
+        
+        // Clear existing options if any
+        projectOptions.innerHTML = '';
+
+        // Loop through project list and create <a> elements
+        projectList.forEach(function(project) {
+            var a = document.createElement('a');
+            a.setAttribute('class', 'dropdown-item');
+            a.setAttribute('href', '#');
+            a.setAttribute('onclick', `updateDropdownValue('projectDropdown', '${project}')`);
+            a.textContent = project;
+            projectOptions.appendChild(a);
+        });
+        } catch (error) {
+        console.error('Failed to fetch project list:', error);
+        var projectOptions = document.getElementById('projectOptions');
+        projectOptions.innerHTML = 'Error getting projects';
+        }
+    });
+     
+</script>
+
+</html>

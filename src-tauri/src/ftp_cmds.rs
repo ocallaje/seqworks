@@ -99,12 +99,20 @@ pub fn get_dirs(pipe_type: &str) -> Result<Vec<String>,String> {
     Ok(entries)
 }
 
-pub fn ftp_put_file(project: &str, params_map: serde_json::Map<String, serde_json::Value>) -> Result<u64, String> {
+pub fn ftp_put_file(project: &str, params_map: serde_json::Map<String, serde_json::Value>, pipe_type: &str) -> Result<u64, String> {
     let mut ftp_stream = match ftp_connect_and_login() {
         Ok(stream) => stream,
         Err(e) => return Err(e),
     };
-    let project_dir = format!("RNAseq_datasets/data/{}", project);
+    let data_dir: String = match pipe_type {
+        "bulk" => String::from("RNAseq_datasets/data/"),
+        "single_cell" => String::from("RNAseq_datasets/data_singlecell/"),
+        _ => {
+            eprintln!("incompatible directory");
+            String::from("default_directory/")
+        }
+    };
+    let project_dir = format!("{}{}", data_dir, project);
     let _ = ftp_stream.cwd(project_dir).unwrap();
 
     // PUT file to the current working directory of the server.

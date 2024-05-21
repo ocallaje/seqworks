@@ -107,6 +107,158 @@ impl BulkParams {
     }
 }
 
+#[derive(serde::Deserialize)]
+pub struct AppSCParams {
+    custom_run_name: String,
+    project: String,
+    organism: String,
+    genome: String,
+    genome_version: String,
+    machine: String,
+    workflow: String,           
+    demultiplex: String,
+    permit_method: String,
+    chemistry: String,          
+    send_email: String,
+    cc: String,
+    minnfeature: String,
+    maxnfeature: String,
+    mt: String,
+    ribo: String,
+    resolution: String,
+    pcs: String,
+    integrate: String, 
+    nonlinear: String,
+    identity: String,
+    condition: String,
+    inspect_list: String,
+    annotation_file: String, 
+    meta_group: String,
+    de: String
+  }
+
+#[derive(serde::Serialize, Debug)]
+pub struct SCParams (
+    String,
+    Genome,
+    String,
+    String,
+    String,
+    String,
+    bool,
+    String,
+    String,
+    bool,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    bool,
+    bool,
+    bool,
+    bool,
+    String,
+    String, 
+    String,
+    bool,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+    String,
+);
+
+impl SCParams {
+    #[allow(non_snake_case)]
+    pub fn new(
+        custom_run_name: String,
+        organism: Genome,
+        genome: String,
+        genome_version: String,
+        machine: String,
+        workflow: String,
+        demultiplex: bool,
+        permit_method: String,
+        chemistry: String,
+        send_email: bool,
+        cc: String,
+        minnfeature: String,
+        maxnfeature: String,
+        mt: String,
+        ribo: String,
+        resolution: String,
+        pcs: String,
+        integrate: bool,
+        nonlinear: bool, 
+        identity: bool,
+        condition: bool,
+        inspect_list: String,
+        annotation_file: String,
+        meta_group: String,
+        DE: bool,
+        input: String,
+        outdir: String,
+        email: String,
+        synology_link: String,
+        publish_dir_mode: String,
+        scriptDir: String,
+        index_mapping_file: String,
+        instrument_mapping_file: String,
+
+    ) -> Self {
+        Self(custom_run_name, organism, genome, genome_version, machine, workflow, demultiplex,
+            permit_method, chemistry, send_email, cc, minnfeature, maxnfeature, mt, ribo,
+            resolution, pcs, integrate, nonlinear, identity, condition, inspect_list, annotation_file,
+            meta_group, DE, input, outdir, email, synology_link, publish_dir_mode, scriptDir,
+            index_mapping_file, instrument_mapping_file
+        )
+    }
+    // Method to convert struct into key-value pairs map
+    fn to_key_value_map(&self) -> serde_json::Map<String, serde_json::Value> {
+        let mut map = Map::new();
+        map.insert("custom_RunName".to_string(), json!(self.0));
+        map.insert("organism".to_string(), json!(self.1));
+        map.insert("genome".to_string(), json!(self.2));
+        map.insert("genome_version".to_string(), json!(self.3));
+        map.insert("machine".to_string(), json!(self.4));
+        map.insert("workflow".to_string(), json!(self.5));
+        map.insert("demultiplex".to_string(), json!(self.6));
+        map.insert("permit_method".to_string(), json!(self.7));
+        map.insert("chemistry".to_string(), json!(self.8));
+        map.insert("send_email".to_string(), json!(self.9));
+        map.insert("cc".to_string(), json!(self.10));
+        map.insert("minnfeature".to_string(), json!(self.11));
+        map.insert("maxnfeature".to_string(), json!(self.12));
+        map.insert("mt".to_string(), json!(self.13));
+        map.insert("ribo".to_string(), json!(self.14));
+        map.insert("resolution".to_string(), json!(self.15));
+        map.insert("pcs".to_string(), json!(self.16));
+        map.insert("integrate".to_string(), json!(self.17));
+        map.insert("nonlinear".to_string(), json!(self.18));
+        map.insert("identity".to_string(), json!(self.19));
+        map.insert("condition".to_string(), json!(self.20));
+        map.insert("inspect_list".to_string(), json!(self.21));
+        map.insert("annotation_file".to_string(), json!(self.22));
+        map.insert("meta_group".to_string(), json!(self.23));
+        map.insert("DE".to_string(), json!(self.24));
+        map.insert("input".to_string(), json!(self.25));
+        map.insert("outdir".to_string(), json!(self.26));
+        map.insert("email".to_string(), json!(self.27));
+        map.insert("synology_link".to_string(), json!(self.28));
+        map.insert("publish_dir_mode".to_string(), json!(self.29));
+        map.insert("scriptDir".to_string(), json!(self.30));
+        map.insert("index_mapping_file".to_string(), json!(self.31));
+        map.insert("instrument_mapping_file".to_string(), json!(self.32));
+        map
+    }
+}
+
 #[derive(Debug, serde::Serialize, PartialEq)]
 pub enum Workflow {
     Default,
@@ -185,7 +337,7 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
     //std::fs::write("nextflowParams.json", encoded.as_bytes()).map_err(|e| format!("Failed to write JSON file: {}", e))?;
     
     // put this json file in project folder
-    let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map());
+    let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "bulk");
 
     let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
     let next_pre = "nextflow run /home/carolina/git/NF-RNAseq/main.nf -params-file";
@@ -196,3 +348,99 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
     
 }
 
+
+pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> Result<String, String> {
+    let custom_run_name: String;
+    if app_params.custom_run_name.is_empty() {
+        custom_run_name = "".to_string();
+        } else {
+        custom_run_name = app_params.custom_run_name;
+    }
+
+    let username:String = {
+        let username = state.username.lock().unwrap();
+        username.clone().ok_or("Username not set")?
+    };
+
+    let chemistry: String;
+    if app_params.chemistry == "1" {
+        chemistry = "chromiumV3".to_string();
+    } else {
+        chemistry = "chromiumV2".to_string();
+    }
+
+    println!("{}", app_params.genome);
+
+    let params: SCParams = SCParams::new(
+        custom_run_name.clone(),
+        match app_params.organism.as_str() {
+            "human" => Genome::Human,
+            "mouse" => Genome::Mouse,
+            "NHP" => Genome::NHP,
+            _ => return Err("Invalid organism option".to_string()), // Handle invalid option
+        },
+        app_params.genome,
+        app_params.genome_version, 
+        app_params.machine,
+        app_params.workflow,
+        app_params.demultiplex.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        app_params.permit_method,
+        chemistry,
+        app_params.send_email.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        app_params.cc,
+        match app_params.minnfeature.as_str() {
+            "" => "5000".to_string(),
+            _ => app_params.minnfeature,
+        },
+        match app_params.maxnfeature.as_str() {
+            "" => "200".to_string(),
+            _ => app_params.maxnfeature,
+        },
+        match app_params.mt.as_str() {
+            "" => "20".to_string(),
+            _ => app_params.mt,
+        },
+        match app_params.ribo.as_str() {
+            "" => "100".to_string(),
+            _ => app_params.ribo,
+        },
+        match app_params.resolution.as_str() {
+            "" => "0".to_string(),
+            _ => app_params.resolution,
+        },
+        match app_params.pcs.as_str() {
+            "" => "0".to_string(),
+            _ => app_params.pcs,
+        },
+        app_params.integrate.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        app_params.nonlinear.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?, 
+        app_params.identity.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        app_params.condition.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        app_params.inspect_list,
+        match app_params.annotation_file.as_str() {
+            "" => "none".to_string(),
+            _ => format!("/mnt/output/single_cell_RNAseq/{}/{}_new_annotations/{}", app_params.project, app_params.project, app_params.annotation_file),
+        },
+        match app_params.meta_group.as_str() {
+            "" => "seurat_clusters".to_string(),
+            _ => app_params.meta_group,
+        },
+        app_params.de.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
+        format!("/mnt/input/data_singlecell/{}/samplesheet_flowcell.csv", app_params.project),
+        format!("/mnt/output/single_cell_RNAseq/{}", app_params.project),
+        format!("{}@tcd.ie", username),
+        "http://CampbellLab.quickconnect.to/d/f/623389304994967313".to_string(),
+        "copy".to_string(),
+        "/mnt/input/refs/bin".to_string(),
+        "/mnt/input/refs/index_sets/Dual_Index_Kit_TT_Set_A.json".to_string(),
+        "/mnt/input/refs/instruments/instrumentation.json".to_string(),
+    );
+
+    let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");
+
+    let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
+    let next_pre = "nextflow run /home/carolina/pipelines/NF-scRNAseq/main.nf -params-file";
+    let rnaseq_cmd = format!("{} {} /mnt/input/data_singlecell/{}/nextflowParams.json; exec bash -i", tmux_pre, next_pre, &app_params.project);
+    
+    Ok(rnaseq_cmd)
+}

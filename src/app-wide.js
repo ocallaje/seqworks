@@ -95,4 +95,64 @@
   });
 
 
-  
+  // Click Check-Buttons
+function changeButtonClass(event, buttonId) {
+  event.preventDefault();             // prevent auto scroll to top of page
+    var button = document.getElementById(buttonId);
+    if (button.classList.contains('btn-info')) {
+        button.classList.remove('btn-info');
+        button.classList.add('btn-light');
+        button.setAttribute('data-clicked', 'false');
+        button.querySelector('.icon').innerHTML = '<i class="fas fa-arrow-right"></i>'; // Revert the icon
+        if (window.location.pathname.includes('pipe_bulk.html')) {
+            if (button.id == "strandedness") {                  
+            button.querySelector('.text').textContent = "Strandedness: Forward";
+            } 
+        } else if (window.location.pathname.includes('pipe_sc.html')) {
+            if (button.id == "strandedness") {                  
+            button.querySelector('.text').textContent = "Chemistry: Chromium V2";
+            }
+        }                
+    } else if (button.classList.contains('btn-light')) {
+        button.classList.remove('btn-light');
+        button.classList.add('btn-info');
+        button.setAttribute('data-clicked', 'true');
+        button.querySelector('.icon').innerHTML = '<i class="fas fa-check"></i>'; // Change the icon
+        if (window.location.pathname.includes('pipe_bulk.html')) {
+            if (button.id == "strandedness") {                  
+            button.querySelector('.text').textContent = "Strandedness: Reverse";
+            } 
+        } else if (window.location.pathname.includes('pipe_sc.html')) {
+            if (button.id == "strandedness") {                  
+            button.querySelector('.text').textContent = "Chemistry: Chromium V3";
+            }
+        }  
+    }
+}
+
+
+// Dropdown field change
+function updateDropdownValue(dropdownId, selectedValue) {
+    var dropdownToggle = document.getElementById(dropdownId);
+    dropdownToggle.textContent = selectedValue;
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    var dropdowns = document.querySelectorAll('.dropdown-toggle');
+
+    dropdowns.forEach(function(dropdownToggle) {
+        var dropdownId = dropdownToggle.getAttribute('id');
+        if (dropdownId) {
+        var dropdownItems = document.querySelectorAll('#' + dropdownId + ' + .dropdown-menu .dropdown-item');
+
+        dropdownItems.forEach(function(item) {
+            item.addEventListener('click', function(event) {
+                event.preventDefault();    // prevent auto scroll to top of page
+                var selectedValue = item.textContent.trim();
+                updateDropdownValue(dropdownId, selectedValue);
+            });
+        });
+    }
+    });
+});
+    

@@ -28,5 +28,15 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins":{
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://gist.githubusercontent.com/ocallaje/fef5865939ed8c69123299d277b0a434/raw/d4c9db8a9830da219b1abd8bf270d5623f44ffea/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDIxNkQ1NzFCREZBQzFCOTcKUldTWEc2emZHMWR0SVVtNDdMSml0QkladE45cDNqTUdPd05WTEkycGpybFhNbVo4eTVHMzFWdVkK"
+    }
   }
 }

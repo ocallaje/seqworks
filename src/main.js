@@ -51,8 +51,7 @@ async function request_projects(pipeline) {
 async function sendBulk() {
   document.getElementById('run_status').textContent = "Submitting run ...";
 
-  params = await invoke("init_bulk", { 
-    appParams: {
+  const params =  {
       // Params
       illumina_stranded_kit: document.getElementById('check1').getAttribute('data-clicked'),
       strandedness: document.getElementById('strandedness').getAttribute('data-clicked'),
@@ -71,9 +70,64 @@ async function sendBulk() {
       // Deseq params
       deseq_model: document.getElementById('modelfield').value,
       deseq_ref_var: document.getElementById('reffield').value
+  }
+
+  await invoke("init_pipe", { 
+    wrapper: {
+      params: {
+        AppParams: params // Ensure this matches your Rust enum variant
+      }
     }
   });
 }    
+
+async function sendSC() {
+  document.getElementById('run_status').textContent = "Submitting run ...";
+
+  params = {
+      // Setup info
+      custom_run_name: document.getElementById('runid').value,
+      project: document.getElementById('projectDropdown').textContent,
+      organism: document.getElementById('Organism').textContent,
+      genome: document.getElementById('genomeDropdown').textContent,
+      genome_version: document.getElementById('gencodeDropdown').textContent,
+      machine: document.getElementById('machine').textContent,
+      workflow: document.getElementById('workflowDropdown').textContent,           
+
+      // Params
+      demultiplex: document.getElementById('demultiplex').getAttribute('data-clicked'),
+      permit_method: document.getElementById('permit').textContent,
+      chemistry: document.getElementById('Chemistry').getAttribute('data-clicked'),          
+      send_email: document.getElementById('send_email').getAttribute('data-clicked'),
+      cc: document.getElementById('ccfield').value,
+      
+      // Seurat params
+      minnfeature: document.getElementById('min-nfeature').value,
+      maxnfeature: document.getElementById('max-nfeature').value,
+      mt: document.getElementById('max-percent-mt').value,
+      ribo: document.getElementById('max-percent-ribo').value,
+      resolution: document.getElementById('resolution').value,
+      pcs: document.getElementById('pcs').value,
+      integrate: document.getElementById('Integrate').getAttribute('data-clicked'), 
+      nonlinear: document.getElementById('nonlinear').getAttribute('data-clicked'),
+      identity: document.getElementById('identity').getAttribute('data-clicked'),
+      condition: document.getElementById('condition').getAttribute('data-clicked'),
+
+      // Inspect
+      inspect_list: document.getElementById('inspect_list').value,
+      annotation_file: document.getElementById('annotation_file').value, 
+      meta_group: document.getElementById('meta_group').value,
+      de: document.getElementById('DE').getAttribute('data-clicked')
+    }
+
+    await invoke("init_pipe", { 
+      wrapper: {
+        params: {
+          AppSCParams: params // Ensure this matches your Rust enum variant
+        }
+      }
+    });
+}
 
 async function pipe_listener() {
   const listener = await listen('init_result', (event) => {
