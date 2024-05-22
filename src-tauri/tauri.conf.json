@@ -1,7 +1,7 @@
 {
   "productName": "SeqWorks",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "seqworks",
   "build": {
     "frontendDist": "../src"
   },
