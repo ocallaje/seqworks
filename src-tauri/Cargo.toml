@@ -26,4 +26,5 @@ ssh2 = "0.9"
 ssh_jumper = "0.4.0"
 tauri-plugin-updater = { version = "2.0.0-beta", features = ["rustls-tls"] }
 tauri-plugin-dialog = "2.0.0-beta"
+dotenvy = "0.15.7"
 

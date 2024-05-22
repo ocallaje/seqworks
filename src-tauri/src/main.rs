@@ -5,6 +5,11 @@ use seqworks;
 use seqworks::app_state::AppState;
 use tauri::{AppHandle, State, Manager};
 use serde::Deserialize;
+use dotenvy::dotenv;
+use std::env;
+
+
+
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -13,6 +18,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> bool {
+    let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_AUTH_SERVER must be set in .env (i.e. localhost:2222)"); // access env variable 
     if user == "user" && pass == "123" {
         println!("SSH login result for {}: success", user);
         let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
@@ -27,7 +33,7 @@ fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> boo
         }
         true // Authentication successful
     } else {
-        match seqworks::ssh::ssh_authenticate(user.clone(), pass, "localhost:2222".to_string()) {
+        match seqworks::ssh::ssh_authenticate(user.clone(), pass, ssh_auth_server.to_string()) {
             Ok(pass) => {
                 println!("SSH login result for {}: {}", user, pass);
                 true
@@ -95,8 +101,19 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
         }
     };
     
+    // Access .env variables
+    let ssh_jumphost_ip:String = env::var("SSH_JUMPHOST_IP").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
+    let ssh_jumphost_port:u16 = env::var("SSH_JUMPHOST_PORT").expect("SSH_JUMPHOST_PORT must be set in .env (i.e. 22)").parse::<u16>().unwrap();
+    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
+    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
+    let ssh_tunnel_dest_ip:String = env::var("SSH_TUNNEL_DEST_IP").expect("SSH_TUNNEL_DEST_IP must be set in .env (i.e. localhost)");
+    let ssh_tunnel_dest_port:u16 = env::var("SSH_TUNNEL_DEST_PORT").expect("SSH_TUNNEL_DEST_PORT must be set in .env (i.e. 22)").parse::<u16>().unwrap();
+    let ssh_tunnel_dest_user:String = env::var("SSH_TUNNEL_DEST_USER").expect("SSH_TUNNEL_DEST_USER must be set in .env (i.e. user)");
+    let ssh_tunnel_dest_pass:String = env::var("SSH_TUNNEL_DEST_PASS").expect("SSH_TUNNEL_DEST_PASS must be set in .env (i.e. password)");
+    
     // Run the command via SSH
-    match seqworks::ssh::run_ssh_command_via_jump("localhost", 2222, "root", "password", "172.17.0.2", 22, "student", "student1", &rnaseq_cmd).await {
+    match seqworks::ssh::run_ssh_command_via_jump(&ssh_jumphost_ip, ssh_jumphost_port, &ssh_jumphost_user, &ssh_jumphost_pass,
+        &ssh_tunnel_dest_ip, ssh_tunnel_dest_port, &ssh_tunnel_dest_user, &ssh_tunnel_dest_pass, &rnaseq_cmd).await {
         //gen153055.gen.tcd.ie  naga 
         Ok(output) => {
             println!("SSH command output: {}", output);
@@ -112,6 +129,7 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
 }
 
 fn main() {
+    dotenv().ok();
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(desktop)]

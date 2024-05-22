@@ -28,3 +28,4 @@ debug/
 target/
 **/*.rs.bk
 *.pdb
+.env
