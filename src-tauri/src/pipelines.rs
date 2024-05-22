@@ -444,3 +444,5 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
     
     Ok(rnaseq_cmd)
 }
+
+

@@ -155,3 +155,22 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
+async function cellxgene_start() {
+  await invoke('cellxgene_startup', {
+    params: {
+      project: document.getElementById("projectDropdown").textContent,
+      h5_file: document.getElementById("h5").textContent
+    }
+  });
+}
+
+async function cellxgene_stop() {
+  await invoke('cellxgene_teardown', {
+    params: {
+      project: document.getElementById("projectDropdown").textContent,
+      h5_file: document.getElementById("h5").textContent
+    }
+  });
+}
+

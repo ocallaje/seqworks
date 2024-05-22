@@ -128,6 +128,40 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
     }
 }
 
+#[tauri::command]
+async fn cellxgene_startup(params: seqworks::ssh::CxgParams, app_handle: AppHandle) -> Result<String, String> {
+    match seqworks::ssh::start_cellxgene(params).await {
+        Ok(_) => {
+            let message = "Launched CellXGene".to_string(); 
+            app_handle.emit("cellxgene_result", &message).unwrap();
+            Ok(message)
+        },
+        Err(e) => {
+            let err_msg = format!("Failed to launch CellXGene, contact administrator: {}", e);
+            eprintln!("{}", &err_msg);
+            app_handle.emit("cellxgene_result", &err_msg).unwrap();
+            return Err(err_msg);
+        }
+    }
+}
+
+#[tauri::command]
+async fn cellxgene_teardown(params: seqworks::ssh::CxgParams, app_handle: AppHandle) -> Result<String, String> {
+    match seqworks::ssh::stop_cellxgene(params).await {
+        Ok(_) => {
+            let message = "CellxGene container stopped and data saved to project/cellxgene".to_string(); 
+            app_handle.emit("cellxgene_result", &message).unwrap();
+            Ok(message)
+        },
+        Err(e) => {
+            let err_msg = format!("Failed to connect to SSH server: {}", e);
+            eprintln!("{}", &err_msg);
+            app_handle.emit("cellxgene_result", "Failed to close CellXGene, contact administrator").unwrap();
+            return Err(err_msg);
+        }
+    } 
+}
+
 fn main() {
     dotenv().ok();
     tauri::Builder::default()
@@ -140,7 +174,8 @@ fn main() {
         .plugin(tauri_plugin_websocket::init())
         .manage(AppState::new())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet, login_with_ssh, ws_listen, get_project_list, init_pipe])
+        .invoke_handler(tauri::generate_handler![greet, login_with_ssh, ws_listen, 
+            get_project_list, init_pipe, cellxgene_startup, cellxgene_teardown])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
