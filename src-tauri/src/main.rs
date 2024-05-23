@@ -19,10 +19,10 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> bool {
     let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_AUTH_SERVER must be set in .env (i.e. localhost:2222)"); // access env variable 
+    let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
+        *username = Some(format!("{}@college.tcd.ie", user.clone()));
     if user == "user" && pass == "123" {
         println!("SSH login result for {}: success", user);
-        let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
-        *username = Some(user.clone());
         match seqworks::socket::register(state.clone()) {
             Ok(ws_url) => {
                 println!("WebSocket URL: {}", ws_url);
@@ -33,7 +33,7 @@ fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> boo
         }
         true // Authentication successful
     } else {
-        match seqworks::ssh::ssh_authenticate(user.clone(), pass, ssh_auth_server.to_string()) {
+        match seqworks::ssh::ssh_authenticate(username.clone().unwrap(), pass, ssh_auth_server.to_string()) {
             Ok(pass) => {
                 println!("SSH login result for {}: {}", user, pass);
                 true
