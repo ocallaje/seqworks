@@ -20,7 +20,7 @@ fn greet(name: &str) -> String {
 fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> bool {
     let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_AUTH_SERVER must be set in .env (i.e. localhost:2222)"); // access env variable 
     let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
-        *username = Some(format!("{}@college.tcd.ie", user.clone()));
+        *username = Some(user.clone());
     if user == "user" && pass == "123" {
         println!("SSH login result for {}: success", user);
         match seqworks::socket::register(state.clone()) {
@@ -33,7 +33,8 @@ fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> boo
         }
         true // Authentication successful
     } else {
-        match seqworks::ssh::ssh_authenticate(username.clone().unwrap(), pass, ssh_auth_server.to_string()) {
+        let user_domain:String = format!("{}@college.tcd.ie", user.clone());
+        match seqworks::ssh::ssh_authenticate(user_domain, pass, ssh_auth_server.to_string()) {
             Ok(pass) => {
                 println!("SSH login result for {}: {}", user, pass);
                 true
@@ -81,7 +82,7 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
     let rnaseq_cmd: String = match wrapper.params {
         AppParamsEnum::AppParams(params) => {
             match seqworks::pipelines::parse_bulk_params(params, state) {
-                Ok(rnaseq_cmd) => format!("Bulk RNAseq command: {}", rnaseq_cmd),
+                Ok(rnaseq_cmd) => rnaseq_cmd,
                 Err(e) => {
                     eprintln!("Failed to get Bulk RNAseq command: {}", e);
                     app_handle.emit("init_result", "Failed to parse parameters, check inputs").unwrap();
@@ -91,7 +92,7 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
         }
         AppParamsEnum::AppSCParams(params) => {
             match seqworks::pipelines::parse_sc_params(params, state) {
-                Ok(rnaseq_cmd ) => format!("Single cell RNAseq command: {}", rnaseq_cmd),
+                Ok(rnaseq_cmd ) => rnaseq_cmd.to_string(),
                 Err(e) => {
                     eprintln!("Failed to get Single Cell RNAseq command: {}", e);
                     app_handle.emit("init_result", "Failed to parse parameters, check inputs").unwrap();
@@ -111,21 +112,9 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
     let ssh_tunnel_dest_user:String = env::var("SSH_TUNNEL_DEST_USER").expect("SSH_TUNNEL_DEST_USER must be set in .env (i.e. user)");
     let ssh_tunnel_dest_pass:String = env::var("SSH_TUNNEL_DEST_PASS").expect("SSH_TUNNEL_DEST_PASS must be set in .env (i.e. password)");
     
-    // Run the command via SSH
-    match seqworks::ssh::run_ssh_command_via_jump(&ssh_jumphost_ip, ssh_jumphost_port, &ssh_jumphost_user, &ssh_jumphost_pass,
-        &ssh_tunnel_dest_ip, ssh_tunnel_dest_port, &ssh_tunnel_dest_user, &ssh_tunnel_dest_pass, &rnaseq_cmd).await {
-        //gen153055.gen.tcd.ie  naga 
-        Ok(output) => {
-            println!("SSH command output: {}", output);
-            app_handle.emit("init_result", "Initiated Pipeline, please wait for completion email").unwrap();
-            Ok(rnaseq_cmd)
-        },
-        Err(e) => {
-            eprintln!("Failed to run SSH command: {}", e);
-            app_handle.emit("init_result", "Failed to connect to Reaper").unwrap();
-            Err(format!("Failed to initialise pipeline: {}", e))
-        }
-    }
+    seqworks::ssh::ssh_chain(&rnaseq_cmd).await;
+    app_handle.emit("init_result", "Pipeline Initialised! Please wait for completion email").unwrap();
+    Ok(rnaseq_cmd)
 }
 
 #[tauri::command]

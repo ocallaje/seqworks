@@ -27,12 +27,12 @@ pub struct BulkParams (
     String,
     String,
     String,
+    bool,
     String,
-    String,
-    String,
-    String,
-    String,
-    String,
+    bool,
+    bool,
+    bool,
+    bool,
     String,
     bool,
     String,
@@ -54,12 +54,12 @@ impl BulkParams {
         input: String,
         outdir: String,
         countsFile: String,
-        illumina_stranded_kit: String,
+        illumina_stranded_kit: bool,
         strandedness: String,
-        paired_end: String,
-        trimadaptors: String,
-        verify: String,
-        merge_fastqs: String,
+        paired_end: bool,
+        trimadaptors: bool,
+        verify: bool,
+        merge_fastqs: bool,
         email: String,
         send_email: bool,
         cc: String,
@@ -140,7 +140,7 @@ pub struct AppSCParams {
 #[derive(serde::Serialize, Debug)]
 pub struct SCParams (
     String,
-    Genome,
+    SCGenome,
     String,
     String,
     String,
@@ -178,7 +178,7 @@ impl SCParams {
     #[allow(non_snake_case)]
     pub fn new(
         custom_run_name: String,
-        organism: Genome,
+        organism: SCGenome,
         genome: String,
         genome_version: String,
         machine: String,
@@ -268,11 +268,16 @@ pub enum Workflow {
 
 #[derive(Debug, serde::Serialize, PartialEq)]
 pub enum Genome {
+    hg38,
+    mm39,
+    chlsab1,
+}
+#[derive(Debug, serde::Serialize, PartialEq)]
+pub enum SCGenome {
     Human,
     Mouse,
     NHP,
 }
-
 
 pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> Result<String, String> {
     let custom_run_name: String;
@@ -311,9 +316,9 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
         app_params.cc,
         custom_run_name.clone(),
         match app_params.genome.as_str() {
-            "Human" => Genome::Human,
-            "Mouse" => Genome::Mouse,
-            "NHP" => Genome::NHP,
+            "Human" => Genome::hg38,
+            "Mouse" => Genome::mm39,
+            "NHP" => Genome::chlsab1,
             _ => return Err("Invalid genome option".to_string()), // Handle invalid option
         },
         app_params.genome_version,
@@ -341,7 +346,8 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
 
     let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
     let next_pre = "nextflow run /home/carolina/git/NF-RNAseq/main.nf -params-file";
-    let rnaseq_cmd = format!("{} {} /mnt/input/data/{}/nextflowParams.json; exec bash -i", tmux_pre, next_pre, &app_params.project);
+    let rnaseq_cmd = format!("{} '{} /mnt/input/data/{}/nextflowParams.json", tmux_pre, next_pre, &app_params.project);
+    //let rnaseq_cmd = format!("{} /mnt/input/data/{}/nextflowParams.json", next_pre, &app_params.project);
     
     //println!("{:?}", params);
     Ok(rnaseq_cmd)
@@ -374,10 +380,10 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
     let params: SCParams = SCParams::new(
         custom_run_name.clone(),
         match app_params.organism.as_str() {
-            "human" => Genome::Human,
-            "mouse" => Genome::Mouse,
-            "NHP" => Genome::NHP,
-            _ => return Err("Invalid organism option".to_string()), // Handle invalid option
+            "Human" => SCGenome::Human,
+            "Mouse" => SCGenome::Mouse,
+            "NHP" => SCGenome::NHP,
+            _ => return Err("Invalid genome option".to_string()),
         },
         app_params.genome,
         app_params.genome_version, 

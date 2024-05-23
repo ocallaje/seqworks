@@ -9,6 +9,7 @@ use ssh_jumper::{
 };
 use serde::Deserialize;
 use trust_dns_resolver::{Resolver, config::ResolverConfig, config::ResolverOpts};
+use std::io::Read;
 
 // you need to set 
 // AllowAgentForwarding yes 
@@ -29,17 +30,18 @@ pub async fn run_ssh_command_via_jump(
     target_host_password: &str,
     command: &str,
 ) -> Result<String, String> {
-    // Specify custom DNS server addresses
-    let custom_dns_servers = vec!["134.226.251.100".parse().unwrap(), "134.226.251.200".parse().unwrap()];
-
-    // Create resolver configuration with custom DNS servers
+    // Specify DNS addresses
+    let custom_dns_servers = vec![
+        "134.226.251.100".parse().unwrap(),
+        "134.226.251.200".parse().unwrap(),
+    ];
     let resolver_config = ResolverConfig::from_parts(None, custom_dns_servers, vec![]);
-
-    // Create resolver options
     let resolver_opts = ResolverOpts::default();
 
-    // Create resolver instance
-    let _resolver = Resolver::new(resolver_config, resolver_opts).map_err(|e| format!("Failed to create DNS resolver: {}", e))?;
+    // Move resolver creation to a blocking context
+    let _resolver = Resolver::new(resolver_config, resolver_opts)
+        .map_err(|e| format!("Failed to create DNS resolver: {}", e))?;
+
 
     let (local_socket_addr, _ssh_forwarder_end_rx) = {
         let jump_host = HostAddress::HostName(Cow::Borrowed(jump_host_address));
@@ -57,51 +59,128 @@ pub async fn run_ssh_command_via_jump(
          
          let ssh_params = SshTunnelParams::new(jump_host, jump_host_auth_params, target_socket)
              .with_jump_host_port(jump_host_port)
-             .with_local_port(3306);
-        
-         SshJumper::open_tunnel(&ssh_params).await.unwrap()
+             .with_local_port(4066);
+         
+         
+        SshJumper::open_tunnel(&ssh_params).await.unwrap()
      };
-     assert_eq!("127.0.0.1:3306".to_string(), local_socket_addr.to_string());
+     assert_eq!("127.0.0.1:4066".to_string(), local_socket_addr.to_string());
      
     let output = run_ssh_command_locally(local_socket_addr, target_host_username, target_host_password, command).await?;
-    println!("{}", output);
+    println!("{:?}", output);
     Ok(local_socket_addr.to_string())
 }
 
 // Function to run SSH command using the local socket address
  async fn run_ssh_command_locally(local_socket_addr: std::net::SocketAddr, target_host_username:&str, 
     target_host_password:&str, command: &str) -> Result<String, String> {
-
+   
+             
         let sess = match ssh_connect(local_socket_addr.to_string(), target_host_username.to_string(), target_host_password.to_string()) {
             Ok(sess) => sess,
             Err(e) => {
-                let err_msg = format!("Failed to connect to SSH server: {}", e);
+               let err_msg = format!("Failed to connect to SSH server: {}", e);
                 eprintln!("{}", &err_msg);
                 return Err(err_msg);
             }
-        };
+        };      
     
-        // Open a channel for executing commands
+        println!("Opening tunnell channel");
+         //Open a channel for executing commands
         let mut channel = sess.channel_session()
             .map_err(|e| format!("Failed to open SSH channel: {}", e))?;
 
-        println!("{}", command);
-        // Execute the command
-        // Put in a timer in case of failure, especially because tmux stays alive
-        // change "ls tmux-3.3a" back to command when implemented
+        println!("passing command");
+         //Execute the command
+         //Put in a timer in case of failure, especially because tmux stays alive
+         //change "ls tmux-3.3a" back to command when implemented
         channel.exec(command)
             .map_err(|e| format!("Failed to execute command over SSH: {}", e))?;
 
-        // Read command output from the channel
+        println!("reading output");
+         //Read command output from the channel
         let mut output = String::new();
         channel.read_to_string(&mut output)
-            .map_err(|e| format!("Failed to read command output from SSH channel: {}", e))?;
+           .map_err(|e| format!("Failed to read command output from SSH channel: {}", e))?;
 
+        println!("closing channel");
         let _ = channel.wait_close();  // Close connection
+        println!("dropping session");
         drop(sess);
 
-        Ok(output)
+        println!("all done");
+        Ok("all done".to_string())
+   
  }
+
+ struct ConnStr {
+    username: String,
+    password: String,
+    intermediary_host: String,
+    final_destination: String,
+    target_command: String,
+
+}
+pub async fn ssh_chain(rnaseq_cmd: &str)  {
+   
+    let conn_str = ConnStr {
+        username: "naga".to_string(),
+        password: "Claudin5".to_string(),
+        intermediary_host: "naga@gen153055.gen.tcd.ie".to_string(),
+        final_destination: "carolina@192.168.5.7".to_string(),
+        target_command: "ifconfig".to_string(),
+    };
+
+    println!("Connecting to intermediary host...");
+
+    // Connect to the intermediary host
+    let tcp = TcpStream::connect("gen153055.gen.tcd.ie:22").expect("Failed to connect to intermediary host");
+    let mut sess = Session::new().unwrap();
+    sess.set_tcp_stream(tcp);
+    sess.handshake().unwrap();
+    sess.userauth_password(&conn_str.username, &conn_str.password).unwrap();
+
+    // Ensure authentication was successful
+    if !sess.authenticated() {
+        panic!("Failed to authenticate on the intermediary host");
+    }
+
+    println!("Executing SSH command on final destination...");
+
+    // Execute SSH command on the final destination server via the intermediary host
+    let mut channel = sess.channel_session().unwrap();
+    //let command = format!("ssh reaper tmux new-session -d -s seq1");
+    let command = format!("ssh reaper {}'", rnaseq_cmd);
+    println!("{}", command);
+    //channel.exec(&command).unwrap();
+
+    if let Err(err) = channel.exec(&command) {
+        eprintln!("Error executing command: {}", err);
+        return;
+    }
+
+    // Capture and print stdout and stderr
+    let mut stdout = String::new();
+    let mut stderr = String::new();
+
+    channel.read_to_string(&mut stdout).unwrap();
+    channel.stderr().read_to_string(&mut stderr).unwrap();
+
+
+    println!("Command output: {}", stdout);
+    println!("Command error output: {}", stderr);
+
+    // Check the exit status
+    let exit_status = channel.exit_status().unwrap();
+    println!("Command exit status: {}", exit_status);
+
+    // Close the channel
+    channel.send_eof().unwrap();
+    channel.wait_close().unwrap();
+
+    println!("SSH chaining complete.");
+ }
+
 
  pub fn ssh_authenticate(user:String, password:String, ip_address: String) -> Result<String, String> {
     let sess = match ssh_connect(ip_address, user, password) {
