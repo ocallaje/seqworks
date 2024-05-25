@@ -8,9 +8,6 @@ use serde::Deserialize;
 use dotenvy::dotenv;
 use std::env;
 
-
-
-
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust!", name)
@@ -101,20 +98,11 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
             }    
         }
     };
-    
-    // Access .env variables
-    let ssh_jumphost_ip:String = env::var("SSH_JUMPHOST_IP").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
-    let ssh_jumphost_port:u16 = env::var("SSH_JUMPHOST_PORT").expect("SSH_JUMPHOST_PORT must be set in .env (i.e. 22)").parse::<u16>().unwrap();
-    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
-    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
-    let ssh_tunnel_dest_ip:String = env::var("SSH_TUNNEL_DEST_IP").expect("SSH_TUNNEL_DEST_IP must be set in .env (i.e. localhost)");
-    let ssh_tunnel_dest_port:u16 = env::var("SSH_TUNNEL_DEST_PORT").expect("SSH_TUNNEL_DEST_PORT must be set in .env (i.e. 22)").parse::<u16>().unwrap();
-    let ssh_tunnel_dest_user:String = env::var("SSH_TUNNEL_DEST_USER").expect("SSH_TUNNEL_DEST_USER must be set in .env (i.e. user)");
-    let ssh_tunnel_dest_pass:String = env::var("SSH_TUNNEL_DEST_PASS").expect("SSH_TUNNEL_DEST_PASS must be set in .env (i.e. password)");
-    
+ 
     seqworks::ssh::ssh_chain(&rnaseq_cmd).await;
     app_handle.emit("init_result", "Pipeline Initialised! Please wait for completion email").unwrap();
     Ok(rnaseq_cmd)
+
 }
 
 #[tauri::command]

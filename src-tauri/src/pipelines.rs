@@ -267,6 +267,7 @@ pub enum Workflow {
 }
 
 #[derive(Debug, serde::Serialize, PartialEq)]
+#[allow(non_camel_case_types)]
 pub enum Genome {
     hg38,
     mm39,

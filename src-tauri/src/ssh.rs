@@ -1,6 +1,5 @@
 use ssh2::Session;
 use std::net::TcpStream;
-use std::io::prelude::*;
 use std::borrow::Cow;
 use std::env;
 use ssh_jumper::{
@@ -113,50 +112,32 @@ pub async fn run_ssh_command_via_jump(
    
  }
 
- struct ConnStr {
-    username: String,
-    password: String,
-    intermediary_host: String,
-    final_destination: String,
-    target_command: String,
 
-}
-pub async fn ssh_chain(rnaseq_cmd: &str)  {
-   
-    let conn_str = ConnStr {
-        username: "naga".to_string(),
-        password: "Claudin5".to_string(),
-        intermediary_host: "naga@gen153055.gen.tcd.ie".to_string(),
-        final_destination: "carolina@192.168.5.7".to_string(),
-        target_command: "ifconfig".to_string(),
-    };
+pub async fn ssh_chain(rnaseq_cmd: &str) {
 
-    println!("Connecting to intermediary host...");
+    let ssh_jumphost:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST must be set in .env (i.e. localhost)"); 
+    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
+    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)");
 
     // Connect to the intermediary host
-    let tcp = TcpStream::connect("gen153055.gen.tcd.ie:22").expect("Failed to connect to intermediary host");
-    let mut sess = Session::new().unwrap();
-    sess.set_tcp_stream(tcp);
-    sess.handshake().unwrap();
-    sess.userauth_password(&conn_str.username, &conn_str.password).unwrap();
-
-    // Ensure authentication was successful
-    if !sess.authenticated() {
-        panic!("Failed to authenticate on the intermediary host");
-    }
-
-    println!("Executing SSH command on final destination...");
-
+    let sess = match ssh_connect(ssh_jumphost, ssh_jumphost_user, ssh_jumphost_pass) {
+        Ok(sess) => sess,
+        Err(e) => {
+            let err_msg = format!("Failed to connect to SSH server: {}", e);
+            eprintln!("{}", &err_msg);  
+            return ()
+        }
+    };
+    
     // Execute SSH command on the final destination server via the intermediary host
+    println!("Executing SSH command on final destination...");
     let mut channel = sess.channel_session().unwrap();
-    //let command = format!("ssh reaper tmux new-session -d -s seq1");
     let command = format!("ssh reaper {}'", rnaseq_cmd);
     println!("{}", command);
-    //channel.exec(&command).unwrap();
 
     if let Err(err) = channel.exec(&command) {
         eprintln!("Error executing command: {}", err);
-        return;
+        return ();
     }
 
     // Capture and print stdout and stderr
@@ -165,7 +146,6 @@ pub async fn ssh_chain(rnaseq_cmd: &str)  {
 
     channel.read_to_string(&mut stdout).unwrap();
     channel.stderr().read_to_string(&mut stderr).unwrap();
-
 
     println!("Command output: {}", stdout);
     println!("Command error output: {}", stderr);
@@ -177,8 +157,6 @@ pub async fn ssh_chain(rnaseq_cmd: &str)  {
     // Close the channel
     channel.send_eof().unwrap();
     channel.wait_close().unwrap();
-
-    println!("SSH chaining complete.");
  }
 
 
