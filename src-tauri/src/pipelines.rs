@@ -131,6 +131,7 @@ pub struct AppSCParams {
     nonlinear: String,
     identity: String,
     condition: String,
+    annotation_method: String,
     inspect_list: String,
     annotation_file: String, 
     meta_group: String,
@@ -150,12 +151,12 @@ pub struct SCParams (
     String,
     bool,
     String,
-    String,
-    String,
-    String,
-    String,
-    String,
-    String,
+    i32,
+    i32,
+    i32,
+    i32,
+    i32,
+    i32,
     bool,
     bool,
     bool,
@@ -164,6 +165,7 @@ pub struct SCParams (
     String, 
     String,
     bool,
+    String,
     String,
     String,
     String,
@@ -188,12 +190,12 @@ impl SCParams {
         chemistry: String,
         send_email: bool,
         cc: String,
-        minnfeature: String,
-        maxnfeature: String,
-        mt: String,
-        ribo: String,
-        resolution: String,
-        pcs: String,
+        minnfeature: i32,
+        maxnfeature: i32,
+        mt: i32,
+        ribo: i32,
+        resolution: i32,
+        pcs: i32,
         integrate: bool,
         nonlinear: bool, 
         identity: bool,
@@ -210,13 +212,14 @@ impl SCParams {
         scriptDir: String,
         index_mapping_file: String,
         instrument_mapping_file: String,
+        annotation_method: String,
 
     ) -> Self {
         Self(custom_run_name, organism, genome, genome_version, machine, workflow, demultiplex,
             permit_method, chemistry, send_email, cc, minnfeature, maxnfeature, mt, ribo,
             resolution, pcs, integrate, nonlinear, identity, condition, inspect_list, annotation_file,
             meta_group, DE, input, outdir, email, synology_link, publish_dir_mode, scriptDir,
-            index_mapping_file, instrument_mapping_file
+            index_mapping_file, instrument_mapping_file, annotation_method
         )
     }
     // Method to convert struct into key-value pairs map
@@ -255,6 +258,7 @@ impl SCParams {
         map.insert("scriptDir".to_string(), json!(self.30));
         map.insert("index_mapping_file".to_string(), json!(self.31));
         map.insert("instrument_mapping_file".to_string(), json!(self.32));
+        map.insert("annotation_method".to_string(), json!(self.33));
         map
     }
 }
@@ -274,9 +278,10 @@ pub enum Genome {
     chlsab1,
 }
 #[derive(Debug, serde::Serialize, PartialEq)]
+#[allow(non_camel_case_types)]
 pub enum SCGenome {
-    Human,
-    Mouse,
+    human,
+    mouse,
     NHP,
 }
 
@@ -347,7 +352,7 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
 
     let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
     let next_pre = "nextflow run /home/carolina/git/NF-RNAseq/main.nf -params-file";
-    let rnaseq_cmd = format!("{} '{} /mnt/input/data/{}/nextflowParams.json", tmux_pre, next_pre, &app_params.project);
+    let rnaseq_cmd = format!("{} '{} /mnt/input/data/{}/nextflowParams.json'", tmux_pre, next_pre, &app_params.project);
     //let rnaseq_cmd = format!("{} /mnt/input/data/{}/nextflowParams.json", next_pre, &app_params.project);
     
     //println!("{:?}", params);
@@ -370,19 +375,17 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
     };
 
     let chemistry: String;
-    if app_params.chemistry == "1" {
+    if app_params.chemistry == "true" {
         chemistry = "chromiumV3".to_string();
     } else {
         chemistry = "chromiumV2".to_string();
     }
 
-    println!("{}", app_params.genome);
-
     let params: SCParams = SCParams::new(
         custom_run_name.clone(),
         match app_params.organism.as_str() {
-            "Human" => SCGenome::Human,
-            "Mouse" => SCGenome::Mouse,
+            "human" => SCGenome::human,
+            "mouse" => SCGenome::mouse,
             "NHP" => SCGenome::NHP,
             _ => return Err("Invalid genome option".to_string()),
         },
@@ -396,28 +399,28 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
         app_params.send_email.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
         app_params.cc,
         match app_params.minnfeature.as_str() {
-            "" => "5000".to_string(),
-            _ => app_params.minnfeature,
+            "" => "5000".parse().expect("Not a valid number for minnfeature"),
+            _ => app_params.minnfeature.parse().expect("Not a valid number for minnfeature"),
         },
         match app_params.maxnfeature.as_str() {
-            "" => "200".to_string(),
-            _ => app_params.maxnfeature,
+            "" => "200".parse().expect("Not a valid number for maxnfeature"),
+            _ => app_params.maxnfeature.parse().expect("Not a valid numberfor maxnfeature"),
         },
         match app_params.mt.as_str() {
-            "" => "20".to_string(),
-            _ => app_params.mt,
+            "" => "20".parse().expect("Not a valid number for mt"),
+            _ => app_params.mt.parse().expect("Not a valid number for mt"),
         },
         match app_params.ribo.as_str() {
-            "" => "100".to_string(),
-            _ => app_params.ribo,
+            "" => "100".parse().expect("Not a valid number for ribo"),
+            _ => app_params.ribo.parse().expect("Not a valid number for ribo"),
         },
         match app_params.resolution.as_str() {
-            "" => "0".to_string(),
-            _ => app_params.resolution,
+            "" => "0".parse().expect("Not a valid number for resolution"),
+            _ => app_params.resolution.parse().expect("Not a valid number for resolution"),
         },
         match app_params.pcs.as_str() {
-            "" => "0".to_string(),
-            _ => app_params.pcs,
+            "" => "0".parse().expect("Not a valid number for pcs"),
+            _ => app_params.pcs.parse().expect("Not a valid number for pcs"),
         },
         app_params.integrate.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
         app_params.nonlinear.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?, 
@@ -433,7 +436,7 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
             _ => app_params.meta_group,
         },
         app_params.de.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
-        format!("/mnt/input/data_singlecell/{}/samplesheet_flowcell.csv", app_params.project),
+        format!("/mnt/input/data_singlecell/{}/", app_params.project),
         format!("/mnt/output/single_cell_RNAseq/{}", app_params.project),
         format!("{}@tcd.ie", username),
         "http://CampbellLab.quickconnect.to/d/f/623389304994967313".to_string(),
@@ -441,13 +444,14 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
         "/mnt/input/refs/bin".to_string(),
         "/mnt/input/refs/index_sets/Dual_Index_Kit_TT_Set_A.json".to_string(),
         "/mnt/input/refs/instruments/instrumentation.json".to_string(),
+        app_params.annotation_method,
     );
 
     let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");
 
     let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
-    let next_pre = "nextflow run /home/carolina/pipelines/NF-scRNAseq/main.nf -params-file";
-    let rnaseq_cmd = format!("{} {} /mnt/input/data_singlecell/{}/nextflowParams.json; exec bash -i", tmux_pre, next_pre, &app_params.project);
+    let next_pre = "'nextflow run /home/carolina/pipelines/NF-scRNAseq/main.nf -params-file";
+    let rnaseq_cmd = format!("{} {} /mnt/input/data_singlecell/{}/nextflowParams.json'", tmux_pre, next_pre, &app_params.project);
     
     Ok(rnaseq_cmd)
 }

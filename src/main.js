@@ -112,6 +112,7 @@ async function sendSC() {
       nonlinear: document.getElementById('nonlinear').getAttribute('data-clicked'),
       identity: document.getElementById('identity').getAttribute('data-clicked'),
       condition: document.getElementById('condition').getAttribute('data-clicked'),
+      annotation_method: document.getElementById('annotation_method').textContent,
 
       // Inspect
       inspect_list: document.getElementById('inspect_list').value,

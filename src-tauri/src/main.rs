@@ -99,8 +99,15 @@ async fn init_pipe(wrapper: AppParamsWrapper, state: State<'_, AppState>, app_ha
         }
     };
  
-    seqworks::ssh::ssh_chain(&rnaseq_cmd).await;
-    app_handle.emit("init_result", "Pipeline Initialised! Please wait for completion email").unwrap();
+    match seqworks::ssh::ssh_chain(&rnaseq_cmd).await {
+        Ok(_exit_status) => app_handle.emit("init_result", "Pipeline Initialised! Please wait for completion email").unwrap(),
+        Err(e) => {
+            eprintln!("Failed to get Single Cell RNAseq command: {}", e);
+            app_handle.emit("init_result", "Failed to send command to server").unwrap();
+            return Err(format!("Failed to initialise pipeline: {}", e));
+        }
+    };
+    
     Ok(rnaseq_cmd)
 
 }

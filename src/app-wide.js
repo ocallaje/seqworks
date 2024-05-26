@@ -109,7 +109,7 @@ function changeButtonClass(event, buttonId) {
             button.querySelector('.text').textContent = "Strandedness: Forward";
             } 
         } else if (window.location.pathname.includes('pipe_sc.html')) {
-            if (button.id == "strandedness") {                  
+            if (button.id == "Chemistry") {                  
             button.querySelector('.text').textContent = "Chemistry: Chromium V2";
             }
         }                
@@ -123,7 +123,7 @@ function changeButtonClass(event, buttonId) {
             button.querySelector('.text').textContent = "Strandedness: Reverse";
             } 
         } else if (window.location.pathname.includes('pipe_sc.html')) {
-            if (button.id == "strandedness") {                  
+            if (button.id == "Chemistry") {                  
             button.querySelector('.text').textContent = "Chemistry: Chromium V3";
             }
         }  

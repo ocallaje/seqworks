@@ -113,31 +113,32 @@ pub async fn run_ssh_command_via_jump(
  }
 
 
-pub async fn ssh_chain(rnaseq_cmd: &str) {
+pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
 
     let ssh_jumphost:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST must be set in .env (i.e. localhost)"); 
     let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
     let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)");
+    let err_val:i32 = 0;
 
     // Connect to the intermediary host
     let sess = match ssh_connect(ssh_jumphost, ssh_jumphost_user, ssh_jumphost_pass) {
-        Ok(sess) => sess,
+        Ok(sess) => Ok(sess),
         Err(e) => {
             let err_msg = format!("Failed to connect to SSH server: {}", e);
             eprintln!("{}", &err_msg);  
-            return ()
+            Err(err_val)
         }
-    };
+    }.unwrap();
     
     // Execute SSH command on the final destination server via the intermediary host
     println!("Executing SSH command on final destination...");
     let mut channel = sess.channel_session().unwrap();
-    let command = format!("ssh reaper {}'", rnaseq_cmd);
+    let command = format!("ssh reaper {}", rnaseq_cmd);
     println!("{}", command);
 
     if let Err(err) = channel.exec(&command) {
         eprintln!("Error executing command: {}", err);
-        return ();
+        
     }
 
     // Capture and print stdout and stderr
@@ -157,6 +158,9 @@ pub async fn ssh_chain(rnaseq_cmd: &str) {
     // Close the channel
     channel.send_eof().unwrap();
     channel.wait_close().unwrap();
+
+    Ok(exit_status)
+
  }
 
 
