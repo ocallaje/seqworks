@@ -132,6 +132,8 @@ pub struct AppSCParams {
     identity: String,
     condition: String,
     annotation_method: String,
+    regress: String,
+    custom_annotations: String,
     inspect_list: String,
     annotation_file: String, 
     meta_group: String,
@@ -155,7 +157,7 @@ pub struct SCParams (
     i32,
     i32,
     i32,
-    i32,
+    f32,
     i32,
     bool,
     bool,
@@ -173,6 +175,8 @@ pub struct SCParams (
     String,
     String,
     String,
+    String,
+    Option<String>,
     String,
 );
 
@@ -194,7 +198,7 @@ impl SCParams {
         maxnfeature: i32,
         mt: i32,
         ribo: i32,
-        resolution: i32,
+        resolution: f32,
         pcs: i32,
         integrate: bool,
         nonlinear: bool, 
@@ -213,13 +217,15 @@ impl SCParams {
         index_mapping_file: String,
         instrument_mapping_file: String,
         annotation_method: String,
+        regress: Option<String>,
+        custom_annotations: String,
 
     ) -> Self {
         Self(custom_run_name, organism, genome, genome_version, machine, workflow, demultiplex,
             permit_method, chemistry, send_email, cc, minnfeature, maxnfeature, mt, ribo,
             resolution, pcs, integrate, nonlinear, identity, condition, inspect_list, annotation_file,
             meta_group, DE, input, outdir, email, synology_link, publish_dir_mode, scriptDir,
-            index_mapping_file, instrument_mapping_file, annotation_method
+            index_mapping_file, instrument_mapping_file, annotation_method, regress, custom_annotations
         )
     }
     // Method to convert struct into key-value pairs map
@@ -259,6 +265,8 @@ impl SCParams {
         map.insert("index_mapping_file".to_string(), json!(self.31));
         map.insert("instrument_mapping_file".to_string(), json!(self.32));
         map.insert("annotation_method".to_string(), json!(self.33));
+        map.insert("regress".to_string(), json!(self.34));
+        map.insert("custom_annotations".to_string(), json!(self.35));
         map
     }
 }
@@ -399,11 +407,11 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
         app_params.send_email.parse().map_err(|e| format!("Failed to parse merge fastqs: {}", e))?,
         app_params.cc,
         match app_params.minnfeature.as_str() {
-            "" => "5000".parse().expect("Not a valid number for minnfeature"),
+            "" => "200".parse().expect("Not a valid number for minnfeature"),
             _ => app_params.minnfeature.parse().expect("Not a valid number for minnfeature"),
         },
         match app_params.maxnfeature.as_str() {
-            "" => "200".parse().expect("Not a valid number for maxnfeature"),
+            "" => "5000".parse().expect("Not a valid number for maxnfeature"),
             _ => app_params.maxnfeature.parse().expect("Not a valid numberfor maxnfeature"),
         },
         match app_params.mt.as_str() {
@@ -445,6 +453,11 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
         "/mnt/input/refs/index_sets/Dual_Index_Kit_TT_Set_A.json".to_string(),
         "/mnt/input/refs/instruments/instrumentation.json".to_string(),
         app_params.annotation_method,
+        match app_params.regress.as_str().trim() {
+            "" => None,
+            s => Some(s.to_string()),
+        },
+        app_params.custom_annotations,
     );
 
     let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");

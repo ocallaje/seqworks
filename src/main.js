@@ -113,6 +113,8 @@ async function sendSC() {
       identity: document.getElementById('identity').getAttribute('data-clicked'),
       condition: document.getElementById('condition').getAttribute('data-clicked'),
       annotation_method: document.getElementById('annotation_method').textContent,
+      regress: document.getElementById('regress').value,
+      custom_annotations: document.getElementById('custom_annotations').value,
 
       // Inspect
       inspect_list: document.getElementById('inspect_list').value,

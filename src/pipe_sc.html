@@ -227,6 +227,11 @@
                                         <label for="editableInput">num-pcs:</label>
                                         <input type="text" class="form-control" id="pcs" placeholder="Default: 0 (Auto)">
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">Regress</label>
+                                        <input type="text" class="form-control" id="regress" placeholder="Default: None">
+                                    </div>
                                     
                                     <div class="my-2"></div>
                                     <a href="#" id="Integrate" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'Integrate')" data-clicked="true">
@@ -254,13 +259,18 @@
                                                     aria-expanded="false">SingleR</a>
                                                 <div class="dropdown-menu dropdown-menu-right animated--fade-in"
                                                     aria-labelledby="navbarDropdown">
-                                                    <a class="dropdown-item" href="#">SingleR</a>
-                                                    <a class="dropdown-item" href="#">chatgpt</a>
+                                                    <a class="dropdown-item" href="#" onclick="toggleCustom('SingleR')">SingleR</a>
+                                                    <a class="dropdown-item" href="#" onclick="toggleCustom('chatgpt')">chatgpt</a>
+                                                    <a class="dropdown-item" href="#" onclick="toggleCustom('custom')">custom</a>
                                                 </div>
                                             </li>
                                         </ul>
                                     </nav> 
 
+                                    <div class="form-group" id="custom_field" style="display: none;">
+                                        <label for="editableInput">Custom Annotations</label>
+                                        <input type="text" class="form-control" id="custom_annotations" placeholder="Please paste list of annotations">
+                                    </div>
                                     
                                     <a href="#" id="identity" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'identity')" data-clicked="true">
                                         <span class="icon text-gray-600">
@@ -494,6 +504,16 @@
             }
         });
     });
+
+    function toggleCustom(option) {
+        if (option == 'custom') {
+            document.getElementById('custom_field').style.display = 'block';
+        } else {
+            document.getElementById('custom_field').style.display = 'none';
+        }
+
+    }
+
 
     </script>
     
