@@ -177,7 +177,7 @@ pub struct SCParams (
     String,
     String,
     Option<String>,
-    String,
+    Option<String>,
 );
 
 impl SCParams {
@@ -218,7 +218,7 @@ impl SCParams {
         instrument_mapping_file: String,
         annotation_method: String,
         regress: Option<String>,
-        custom_annotations: String,
+        custom_annotations: Option<String>,
 
     ) -> Self {
         Self(custom_run_name, organism, genome, genome_version, machine, workflow, demultiplex,
@@ -457,7 +457,10 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
             "" => None,
             s => Some(s.to_string()),
         },
-        app_params.custom_annotations,
+        match app_params.custom_annotations.as_str().trim() {
+            "" => None, 
+            s => Some(format!("\"{}\"", s)),
+        },
     );
 
     let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");

@@ -178,10 +178,10 @@
                                                     aria-expanded="false">Select</a>
                                                 <div class="dropdown-menu dropdown-menu-right animated--fade-in"
                                                     aria-labelledby="navbarDropdown">
-                                                    <a class="dropdown-item" href="#" data-value = "standard">standard</a>
-                                                    <a class="dropdown-item" href="#" data-value = "demultiplex">demultiplex</a>
-                                                    <a class="dropdown-item" href="#" data-value = "seurat_only">seurat_only</a>
-                                                    <a class="dropdown-item" href="#" data-value = "inspect">inspect</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('standard')" data-value = "standard">standard</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('demultiplex')" data-value = "demultiplex">demultiplex</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('seurat_only')" data-value = "seurat_only">seurat_only</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('inspect')" data-value = "inspect">inspect</a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -190,8 +190,126 @@
                                 </div>
                             </div>
 
-                            <!-- DESEQ -->
+
+                            <!-- Run -->
                             <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Run Analysis</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Click the button to run the pipeline</p>
+                                    
+                                    <div class="d-flex align-items-center">
+                                        <a href="#" class="btn btn-primary btn-circle btn-lg" id="runsc">
+                                            <i class="fa fa-play"></i>
+                                        </a>
+                                        <div class="ml-5">
+                                            <code id="run_status"></code>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        <!-- end of first column-->    
+                        </div>
+
+                        <div class="col-lg-6">
+                            <!-- Params -->
+                            <div class="card shadow mb-4" id = "pipeline_params_panel">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Pipeline Parameters</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Select true/fase pipeline parameters for your analysis.</p>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="demultiplex" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'demultiplex')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Demultiplex</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="Chemistry" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'Chemistry')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Chemistry: Chromium V3</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                                        <a class="navbar-brand" href="#">Permit Method</a>
+                                        <ul class="navbar-nav ml-auto">
+                                            <li class="nav-item dropdown">
+                                                <a class="nav-link dropdown-toggle" href="#" id="permit"
+                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
+                                                    aria-expanded="false">Select</a>
+                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
+                                                    aria-labelledby="navbarDropdown">
+                                                    <a class="dropdown-item" href="#">knee</a>
+                                                    <a class="dropdown-item" href="#">force</a>
+                                                    <a class="dropdown-item" href="#">v3</a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </nav> 
+
+                                    <div class="my-2"></div>
+                                    <a href="#" id="send_email" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'send_email')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Send Email Notification</span>
+                                    </a>
+
+                                    <div class="my-2"></div>
+                                    <div class="form-group">
+                                        <input type="email" class="form-control form-control-user"
+                                            id="ccfield" 
+                                            placeholder="Enter Email Address (only for CC)">
+                                    </div>
+                                    
+                                </div>
+                            </div>
+
+                            <!-- Inspect -->
+                            <div class="card shadow mb-4" id = "inspect_panel" style="display: none;">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Inspect-specific parameters</h6>
+                                </div>
+                                
+                                <div class="card-body">
+                                    <p>For the Inspect workflow</p>
+                                    <div class="form-group">
+                                        <label for="editableInput">Annotation File</label>
+                                        <input type="text" class="form-control" id="annotation_file" placeholder="Default: None">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editableInput">Annotation Category</label>
+                                        <input type="text" class="form-control" id="meta_group" placeholder="Default: seurat_clusters">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">Gene List</label>
+                                        <input type="text" class="form-control" id="inspect_list" placeholder="Default: None">
+                                    </div>
+
+                                    <a href="#" id="DE" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'DE')" data-clicked="false">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </span>
+                                        <span class="text">Perform DE</span>
+                                    </a>
+
+                                </div>
+                            </div>
+
+
+                            <!-- Seurat -->
+                            <div class="card shadow mb-4" id = "seurat_panel">
                                 <div class="card-header py-3">
                                     <h6 class="m-0 font-weight-bold text-primary">Seurat Parameters</h6>
                                 </div>
@@ -288,120 +406,8 @@
                                 </div>
                             </div>
 
-                            <!-- Inspect -->
-                            <div class="card shadow mb-4" id = "inspect_panel" style="display: none;">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Inspect-specific parameters</h6>
-                                </div>
-                                
-                                <div class="card-body">
-                                    <p>For the Inspect workflow</p>
-                                    <div class="form-group">
-                                        <label for="editableInput">Annotation File</label>
-                                        <input type="text" class="form-control" id="annotation_file" placeholder="Default: None">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="editableInput">Annotation Category</label>
-                                        <input type="text" class="form-control" id="meta_group" placeholder="Default: seurat_clusters">
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label for="editableInput">Gene List</label>
-                                        <input type="text" class="form-control" id="inspect_list" placeholder="Default: None">
-                                    </div>
-
-                                    <a href="#" id="DE" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'DE')" data-clicked="false">
-                                        <span class="icon text-gray-600">
-                                            <i class="fas fa-arrow-right"></i>
-                                        </span>
-                                        <span class="text">Perform DE</span>
-                                    </a>
-
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <!-- Params -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Pipeline Parameters</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p>Select true/fase pipeline parameters for your analysis.</p>
-
-                                    <div class="my-2"></div>
-                                    <a href="#" id="demultiplex" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'demultiplex')" data-clicked="true">
-                                        <span class="icon text-gray-600">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        <span class="text">Demultiplex</span>
-                                    </a>
-
-                                    <div class="my-2"></div>
-                                    <a href="#" id="Chemistry" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'Chemistry')" data-clicked="true">
-                                        <span class="icon text-gray-600">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        <span class="text">Chemistry: Chromium V3</span>
-                                    </a>
-
-                                    <div class="my-2"></div>
-                                    <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                                        <a class="navbar-brand" href="#">Permit Method</a>
-                                        <ul class="navbar-nav ml-auto">
-                                            <li class="nav-item dropdown">
-                                                <a class="nav-link dropdown-toggle" href="#" id="permit"
-                                                    role="button" data-toggle="dropdown" aria-haspopup="true"
-                                                    aria-expanded="false">Select</a>
-                                                <div class="dropdown-menu dropdown-menu-right animated--fade-in"
-                                                    aria-labelledby="navbarDropdown">
-                                                    <a class="dropdown-item" href="#">knee</a>
-                                                    <a class="dropdown-item" href="#">force</a>
-                                                    <a class="dropdown-item" href="#">v3</a>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </nav> 
-
-                                    <div class="my-2"></div>
-                                    <a href="#" id="send_email" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'send_email')" data-clicked="true">
-                                        <span class="icon text-gray-600">
-                                            <i class="fas fa-check"></i>
-                                        </span>
-                                        <span class="text">Send Email Notification</span>
-                                    </a>
-
-                                    <div class="my-2"></div>
-                                    <div class="form-group">
-                                        <input type="email" class="form-control form-control-user"
-                                            id="ccfield" 
-                                            placeholder="Enter Email Address (only for CC)">
-                                    </div>
-                                    
-                                </div>
-                            </div>
-
-                            <!-- Run -->
-                            <div class="card shadow mb-4">
-                                <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Run Analysis</h6>
-                                </div>
-                                <div class="card-body">
-                                    <p>Click the button to run the pipeline</p>
-                                    
-                                    <div class="d-flex align-items-center">
-                                        <a href="#" class="btn btn-primary btn-circle btn-lg" id="runsc">
-                                            <i class="fa fa-play"></i>
-                                        </a>
-                                        <div class="ml-5">
-                                            <code id="run_status"></code>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-
+                        <!-- end of second column-->    
                         </div>
 
                     </div>
@@ -510,6 +516,34 @@
             document.getElementById('custom_field').style.display = 'block';
         } else {
             document.getElementById('custom_field').style.display = 'none';
+        }
+
+    }
+
+    function workflowPanels(option) {
+        switch(option) {
+            case 'standard':
+                document.getElementById('pipeline_params_panel').style.display = 'block';
+                document.getElementById('seurat_panel').style.display = 'block';
+                document.getElementById('inspect_panel').style.display = 'block';
+                break;
+            case 'demultiplex':
+                document.getElementById('pipeline_params_panel').style.display = 'none';
+                document.getElementById('seurat_panel').style.display = 'none';
+                document.getElementById('inspect_panel').style.display = 'none';
+                break;
+            case 'seurat_only':
+                document.getElementById('pipeline_params_panel').style.display = 'none';
+                document.getElementById('seurat_panel').style.display = 'block';
+                document.getElementById('inspect_panel').style.display = 'none';
+                break;
+            case 'inspect_only':
+                document.getElementById('pipeline_params_panel').style.display = 'block';
+                document.getElementById('seurat_panel').style.display = 'block';
+                document.getElementById('inspect_panel').style.display = 'block';
+                break;
+            default:
+                // code block
         }
 
     }

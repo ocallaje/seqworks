@@ -50,6 +50,11 @@ async fn ws_listen(app_handle: AppHandle, state: State<'_, AppState>) -> Result<
 }
 
 #[tauri::command]
+async fn ws_start(app_handle: AppHandle, state: State<'_, AppState>) -> Result<(), String> {
+    seqworks::socket::start_websocket(app_handle, state).await
+}
+
+#[tauri::command]
 async fn get_project_list(pipe_type: &str) -> Result<Vec<String>, Vec<String>> {
     let project_list: Vec<String> = match seqworks::ftp_cmds::get_dirs(pipe_type) {
         Ok(project_list ) => {
@@ -158,7 +163,7 @@ fn main() {
         .plugin(tauri_plugin_websocket::init())
         .manage(AppState::new())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet, login_with_ssh, ws_listen, 
+        .invoke_handler(tauri::generate_handler![greet, login_with_ssh, ws_start, 
             get_project_list, init_pipe, cellxgene_startup, cellxgene_teardown])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

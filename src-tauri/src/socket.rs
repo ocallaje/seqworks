@@ -32,7 +32,7 @@ pub fn register(state: State<'_, AppState>) -> Result<String, String> {
 
     let client = reqwest::blocking::Client::new();
     let response = client
-        .post("http://localhost:7777/register")
+        .post("http://134.226.153.55:7777/register")
         .header("Content-Type", "application/json")
         .body(register_body_json)
         .send()
@@ -96,4 +96,32 @@ pub async fn ws_connect(
     }
 
     Ok("WebSocket connection closed".to_string())
+}
+
+
+
+pub async fn start_websocket(app_handle: AppHandle, state: State<'_, AppState>) -> Result<(), String> {
+    let ws_url = {
+        let ws_url = state.ws_url.lock().unwrap();
+        ws_url.clone().ok_or("WebSocket URL not set")?
+    };
+
+    tokio::spawn(async move {
+        match connect_async(ws_url).await {
+            Ok((ws_stream, _)) => {
+                println!("Connected to websocket");
+                let (_ws_write, mut ws_read) = ws_stream.split();
+                while let Some(Ok(message)) = ws_read.next().await {
+                    if let Message::Text(text) = message {
+                        println!("Received: {}", text);
+                        let ws_message = WebSocketMessage { message: text.clone() };
+                        app_handle.emit("websocket-message", ws_message).unwrap();
+                    }
+                }
+            }
+            Err(e) => println!("Failed to connect to websocket: {}", e),
+        }
+    });
+
+    Ok(())
 }

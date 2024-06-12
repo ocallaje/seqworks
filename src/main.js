@@ -19,16 +19,20 @@ async function login() {
   const email = document.getElementById('InputEmail').value;
   const password = document.getElementById('InputPassword').value;
   loginButton.textContent = "Please Wait...";
-  authenticated = await invoke("login_with_ssh", {user: email, pass: password});
-  if (authenticated) {
-    // Redirect or perform other actions on successful login
-    console.log('Authentication successful');  
-    window.location.href = 'dashboard.html';        // redirect to dashboard
-    connect_to_socket = await invoke("ws_listen");  // connect to websocket 
-    
-  } else {
-        // Display error message
-    document.getElementById('auth_error').style.display = 'block';
+  try {
+    const authenticated = await invoke("login_with_ssh", { user: email, pass: password });
+      if (authenticated) {
+          console.log('Authentication successful');
+          window.location.href = 'dashboard.html';  // Redirect to dashboard
+          await invoke("ws_start");
+      } else {
+          document.getElementById('auth_error').style.display = 'block';
+      }
+  } catch (error) {
+      console.error('Login failed:', error);
+      document.getElementById('auth_error').style.display = 'block';
+  } finally {
+      loginButton.textContent = "Login";
   }
 }
 
