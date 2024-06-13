@@ -15,7 +15,7 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> bool {
-    let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_AUTH_SERVER must be set in .env (i.e. localhost:2222)"); // access env variable 
+    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST must be set in .env (i.e. localhost:2222)"); // access env variable 
     let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
         *username = Some(user.clone());
     if user == "user" && pass == "123" {
@@ -42,11 +42,6 @@ fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> boo
             }
         }
     }
-}
-
-#[tauri::command]
-async fn ws_listen(app_handle: AppHandle, state: State<'_, AppState>) -> Result<String, String> {
-    seqworks::socket::ws_connect(app_handle, state).await
 }
 
 #[tauri::command]

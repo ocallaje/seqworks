@@ -184,7 +184,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
 }
 
  pub async fn start_cellxgene(params: CxgParams) -> Result<(), String> {
-    let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
+    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
     let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
     let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
     
@@ -217,7 +217,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
  }
 
  pub async fn stop_cellxgene(params: CxgParams) -> Result<(), String> {
-    let ssh_auth_server:String = env::var("SSH_AUTH_SERVER").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
+    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
     let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
     let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
 
