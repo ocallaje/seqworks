@@ -22,18 +22,9 @@ jobs:
 
       - name: Download latest.json from release
         run: |
-          curl -L -o latest.json \
+          curl -L -o updater.json \
           $(curl -s https://api.github.com/repos/ocallaje/seqworks/releases/latest \
           | jq -r '.assets[] | select(.name == "latest.json") | .browser_download_url')
-
-      - name: Checkout the gh-pages branch
-        run: |
-          git fetch origin gh-pages
-          git checkout gh-pages
-
-      - name: Update latest.json in gh-pages branch
-        run: |
-          mv latest.json ./updater.json
 
       - name: Commit and push changes
         run: |
