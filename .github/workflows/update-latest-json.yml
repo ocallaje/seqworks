@@ -32,7 +32,7 @@ jobs:
 
       - name: Update latest.json in gh-pages branch
         run: |
-          mv latest.json ./latest.json
+          mv latest.json ./updater.json
 
       - name: Commit and push changes
         run: |
