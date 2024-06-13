@@ -1,4 +1,4 @@
-name: Update Latest JSON on GitHub Pages
+name: Update GitHub Pages with Updater
 
 on:
   release:
