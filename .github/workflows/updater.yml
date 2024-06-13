@@ -3,6 +3,7 @@ name: Update GitHub Pages with Updater
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   update-gh-pages:
