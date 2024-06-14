@@ -48,15 +48,29 @@ jobs:
       - name: install frontend dependencies
         run: npm install # change this to npm, pnpm or bun depending on which one you use.      
 
-      - name: Set env keys
+      - name: Create .env file (macOS and Linux)
+        if: matrix.platform != 'windows-latest'
         run: |
-          echo "TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" >> $GITHUB_ENV
-          echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" >> $GITHUB_ENV
-          echo "SSH_JUMPHOST=${{ secrets.SSH_JUMPHOST }}" >> $GITHUB_ENV
-          echo "SSH_JUMPHOST_USER=${{ secrets.SSH_JUMPHOST_USER }}" >> $GITHUB_ENV
-          echo "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}" >> $GITHUB_ENV
-          echo "FTP_SERVER=${{ secrets.FTP_SERVER }}" >> $GITHUB_ENV
-          
+          touch .env
+          echo "SSH_JUMPHOST=${{ secrets.SSH_JUMPHOST }}" >> .env
+          echo "SSH_JUMPHOST_USER=${{ secrets.SSH_JUMPHOST_USER }}" >> .env
+          echo "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}" >> .env
+          echo "FTP_SERVER=${{ secrets.FTP_SERVER }}" >> .env
+          cat .env
+
+      - name: Create .env file (Windows)
+        if: matrix.platform == 'windows-latest'
+        run: |
+          New-Item -ItemType File -Path .env -Force
+          Add-Content -Path .env -Value "SSH_JUMPHOST=${{ secrets.SSH_JUMPHOST }}"
+          Add-Content -Path .env -Value "SSH_JUMPHOST_USER=${{ secrets.SSH_JUMPHOST_USER }}"
+          Add-Content -Path .env -Value "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}"
+          Add-Content -Path .env -Value "FTP_SERVER=${{ secrets.FTP_SERVER }}"
+          Get-Content .env
+
+      - name: Set Updater Signing Keys
+        run: echo "TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" >> $GITHUB_ENV
+        run: echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" >> $GITHUB_ENV
 
       - uses: tauri-apps/tauri-action@v0
         env:
