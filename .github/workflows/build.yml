@@ -68,6 +68,23 @@ jobs:
           Add-Content -Path .env -Value "FTP_SERVER=${{ secrets.FTP_SERVER }}"
           Get-Content .env
 
+      - name: Set env keys
+        run: |
+          echo "TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" >> $GITHUB_ENV
+          echo "TAURI_SIGNING_PRIVATE_KEY_PASSWORD=${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}" >> $GITHUB_ENV
+          echo "SSH_JUMPHOST=${{ secrets.SSH_JUMPHOST }}" >> $GITHUB_ENV
+          echo "SSH_JUMPHOST_USER=${{ secrets.SSH_JUMPHOST_USER }}" >> $GITHUB_ENV
+          echo "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}" >> $GITHUB_ENV
+          echo "FTP_SERVER=${{ secrets.FTP_SERVER }}" >> $GITHUB_ENV
+
+      - name: Debug Environment Variables
+        run: |
+          echo "Environment Variables:"
+          echo "SSH_JUMPHOST=$SSH_JUMPHOST"
+          echo "SSH_JUMPHOST_USER=$SSH_JUMPHOST_USER"
+          echo "SSH_JUMPHOST_PASS=$SSH_JUMPHOST_PASS"
+          echo "FTP_SERVER=$FTP_SERVER"
+
       - name: Set Updater Signing Keys
         run: |
           echo "TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" >> $GITHUB_ENV
