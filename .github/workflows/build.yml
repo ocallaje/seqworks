@@ -57,7 +57,8 @@ jobs:
           echo "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}" >> .env
           echo "FTP_SERVER=${{ secrets.FTP_SERVER }}" >> .env
           cat .env
-          cp .env /src-tauri/.env
+          ls -a
+          cp .env .src-tauri/.env
 
       - name: Create .env file (Windows)
         if: matrix.platform == 'windows-latest'
@@ -68,6 +69,7 @@ jobs:
           Add-Content -Path .env -Value "SSH_JUMPHOST_PASS=${{ secrets.SSH_JUMPHOST_PASS }}"
           Add-Content -Path .env -Value "FTP_SERVER=${{ secrets.FTP_SERVER }}"
           Get-Content .env
+          ls
           cp .env src-tauri\.env
 
       - name: Set env keys
