@@ -58,7 +58,7 @@ jobs:
           echo "FTP_SERVER=${{ secrets.FTP_SERVER }}" >> .env
           cat .env
           ls -a
-          cp .env .src-tauri/.env
+          cp .env src-tauri/.env
 
       - name: Create .env file (Windows)
         if: matrix.platform == 'windows-latest'
