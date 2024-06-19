@@ -69,7 +69,7 @@ jobs:
           Get-Content .env
 
       - name: copy .env file to source
-        run: cp .env /src-tauri
+        run: cp .env /src-tauri/
       - name: Set Updater Signing Keys
         run: |
           echo "TAURI_SIGNING_PRIVATE_KEY=${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}" >> $GITHUB_ENV
