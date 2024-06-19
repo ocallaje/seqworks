@@ -92,7 +92,7 @@ jobs:
 
       - name: copy env to build source
         run: |
-          cp .env /source-tauri/
+          cp .env /src-tauri/
 
       - uses: tauri-apps/tauri-action@v0
         env:
