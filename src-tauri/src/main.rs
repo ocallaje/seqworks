@@ -5,8 +5,8 @@ use seqworks;
 use seqworks::app_state::AppState;
 use tauri::{AppHandle, State, Manager};
 use serde::Deserialize;
-use dotenvy::dotenv;
 use std::env;
+include!(concat!("../env_vars.rs"));
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -15,7 +15,6 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> bool {
-    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST must be set in .env (i.e. localhost:2222)"); // access env variable 
     let mut username = state.username.lock().unwrap(); // Update the shared state with the WebSocket URL
         *username = Some(user.clone());
     if user == "user" && pass == "123" {
@@ -31,7 +30,7 @@ fn login_with_ssh(user: String, pass: String, state: State<'_, AppState>) -> boo
         true // Authentication successful
     } else {
         let user_domain:String = format!("{}@college.tcd.ie", user.clone());
-        match seqworks::ssh::ssh_authenticate(user_domain, pass, ssh_auth_server.to_string()) {
+        match seqworks::ssh::ssh_authenticate(user_domain, pass, SSH_JUMPHOST.to_string()) {
             Ok(pass) => {
                 println!("SSH login result for {}: {}", user, pass);
                 true
@@ -147,7 +146,6 @@ async fn cellxgene_teardown(params: seqworks::ssh::CxgParams, app_handle: AppHan
 }
 
 fn main() {
-    dotenv().ok();
     tauri::Builder::default()
         .setup(|app| {
             #[cfg(desktop)]

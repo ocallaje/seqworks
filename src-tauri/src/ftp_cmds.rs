@@ -1,7 +1,7 @@
 use std::str;
 use std::io::Cursor;
 use suppaftp::FtpStream;
-use std::env;
+include!(concat!("../env_vars.rs"));
 
 pub fn parse_de_samplesheet(project: &str, contrast_var: String, ref_var: String) -> Result<String, String> {
     let mut ftp_stream = match ftp_connect_and_login() {
@@ -128,8 +128,7 @@ pub fn ftp_put_file(project: &str, params_map: serde_json::Map<String, serde_jso
 }
 
 fn ftp_connect_and_login() -> Result<FtpStream, String> {
-    let ftp_addr:String = env::var("FTP_SERVER").expect("FTP_SERVER must be set in .env (i.e. 192.168.1.1)"); // access env variable = 
-    let mut ftp_stream = match FtpStream::connect(&ftp_addr) {
+    let mut ftp_stream = match FtpStream::connect(FTP_SERVER) {
         Ok(stream) => stream,
         Err(e) => {
             let err_msg = format!("Failed to connect to FTP server: {}", e);

@@ -29,3 +29,4 @@ target/
 **/*.rs.bk
 *.pdb
 *.env
+env_vars.rs

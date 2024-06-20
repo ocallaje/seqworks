@@ -10,8 +10,8 @@
     "windows": [
       {
         "title": "SeqWorks",
-        "width": 1600,
-        "height": 1000
+        "width": 1200,
+        "height": 700
       }
     ],
     "security": {

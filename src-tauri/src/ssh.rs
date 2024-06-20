@@ -1,7 +1,6 @@
 use ssh2::Session;
 use std::net::TcpStream;
 use std::borrow::Cow;
-use std::env;
 use ssh_jumper::{
     model::{AuthMethod, HostAddress, HostSocketParams, JumpHostAuthParams, SshTunnelParams},
     SshJumper,
@@ -9,6 +8,7 @@ use ssh_jumper::{
 use serde::Deserialize;
 use trust_dns_resolver::{Resolver, config::ResolverConfig, config::ResolverOpts};
 use std::io::Read;
+include!(concat!("../env_vars.rs"));
 
 // you need to set 
 // AllowAgentForwarding yes 
@@ -115,13 +115,10 @@ pub async fn run_ssh_command_via_jump(
 
 pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
 
-    let ssh_jumphost:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST must be set in .env (i.e. localhost)"); 
-    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
-    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)");
     let err_val:i32 = 0;
 
     // Connect to the intermediary host
-    let sess = match ssh_connect(ssh_jumphost, ssh_jumphost_user, ssh_jumphost_pass) {
+    let sess = match ssh_connect(SSH_JUMPHOST.to_string(), SSH_JUMPHOST_USER.to_string(), SSH_JUMPHOST_PASS.to_string()) {
         Ok(sess) => Ok(sess),
         Err(e) => {
             let err_msg = format!("Failed to connect to SSH server: {}", e);
@@ -184,9 +181,6 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
 }
 
  pub async fn start_cellxgene(params: CxgParams) -> Result<(), String> {
-    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
-    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
-    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
     
     let command = format!("docker run -d -v /mnt/output/single_cell_RNAseq/{}/:/data \
     -p 5005:5005 cellxgene launch \
@@ -194,7 +188,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     --annotations-dir data/{}_new_annotations",
     params.project, params.h5_file, params.project);
 
-    let sess = match ssh_connect(ssh_auth_server, ssh_jumphost_user, ssh_jumphost_pass) {
+    let sess = match ssh_connect(SSH_JUMPHOST.to_string(), SSH_JUMPHOST_USER.to_string(), SSH_JUMPHOST_PASS.to_string()) {
         Ok(sess) => sess,
         Err(e) => {
             let err_msg = format!("Failed to connect to SSH server: {}", e);
@@ -217,11 +211,8 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
  }
 
  pub async fn stop_cellxgene(params: CxgParams) -> Result<(), String> {
-    let ssh_auth_server:String = env::var("SSH_JUMPHOST").expect("SSH_JUMPHOST_IP must be set in .env (i.e. localhost)"); 
-    let ssh_jumphost_user:String = env::var("SSH_JUMPHOST_USER").expect("SSH_JUMPHOST_USER must be set in .env (i.e. user)"); 
-    let ssh_jumphost_pass:String = env::var("SSH_JUMPHOST_PASS").expect("SSH_JUMPHOST_PASS must be set in .env (i.e. password)"); 
-
-    let mut sess = match ssh_connect(ssh_auth_server, ssh_jumphost_user, ssh_jumphost_pass) {
+    
+    let mut sess = match ssh_connect(SSH_JUMPHOST.to_string(), SSH_JUMPHOST_USER.to_string(), SSH_JUMPHOST_PASS.to_string()) {
         Ok(sess) => sess,
         Err(e) => {
             let err_msg = format!("Failed to connect to SSH server: {}", e);
