@@ -29,3 +29,7 @@ ssh_jumper = "0.4.0"
 tauri-plugin-updater = { version = "2.0.0-beta", features = ["rustls-tls"] }
 tauri-plugin-dialog = "2.0.0-beta"
 trust-dns-resolver = "0.23.2"
+
+[dev-dependencies]
+tauri = { version = "2.0.0-beta", features = ["test"] }
+
