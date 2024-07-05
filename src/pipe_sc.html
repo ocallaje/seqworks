@@ -178,10 +178,12 @@
                                                     aria-expanded="false">Select</a>
                                                 <div class="dropdown-menu dropdown-menu-right animated--fade-in"
                                                     aria-labelledby="navbarDropdown">
-                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('standard')" data-value = "standard">standard</a>
-                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('demultiplex')" data-value = "demultiplex">demultiplex</a>
-                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('seurat_only')" data-value = "seurat_only">seurat_only</a>
-                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('inspect')" data-value = "inspect">inspect</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('standard')">standard</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('demultiplex')">demultiplex</a>
+                                                    <!-- <a class="dropdown-item" href="#" onclick = "workflowPanels('seurat_only')">full seurat</a> -->
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('seurat_process')">process clusters</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('seurat_analyse')">analyse clusters</a>
+                                                    <a class="dropdown-item" href="#" onclick = "workflowPanels('inspect')">inspect clusters</a>
                                                 </div>
                                             </li>
                                         </ul>
@@ -276,7 +278,7 @@
                             </div>
 
                             <!-- Inspect -->
-                            <div class="card shadow mb-4" id = "inspect_panel" style="display: none;">
+                            <div class="card shadow mb-4 panel" id = "inspect_panel" style="display: none;">
                                 <div class="card-header py-3">
                                     <h6 class="m-0 font-weight-bold text-primary">Inspect-specific parameters</h6>
                                 </div>
@@ -297,9 +299,16 @@
                                         <input type="text" class="form-control" id="inspect_list" placeholder="Default: None">
                                     </div>
 
-                                    <a href="#" id="DE" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'DE')" data-clicked="false">
+                                    <a href="#" id="identity" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'identity')" data-clicked="true">
                                         <span class="icon text-gray-600">
-                                            <i class="fas fa-arrow-right"></i>
+                                            <i class="fas fa-check"></i>
+                                        </span>
+                                        <span class="text">Identity</span>
+                                    </a>
+
+                                    <a href="#" id="DE" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'DE')" data-clicked="true">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-check"></i>
                                         </span>
                                         <span class="text">Perform DE</span>
                                     </a>
@@ -308,10 +317,10 @@
                             </div>
 
 
-                            <!-- Seurat -->
-                            <div class="card shadow mb-4" id = "seurat_panel">
+                            <!-- Seurat Process -->
+                            <div class="card shadow mb-4 panel" id = "seurat_panel">
                                 <div class="card-header py-3">
-                                    <h6 class="m-0 font-weight-bold text-primary">Seurat Parameters</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Seurat Process Parameters</h6>
                                 </div>
                                 <div class="card-body">
                                     <p>Adjust Seurat-specific parameters here</p>
@@ -367,6 +376,35 @@
                                         <span class="text">nonlinear</span>
                                     </a>
                                     
+                                    
+                                    <div class="my-2"></div>
+                                    <a href="#" id="condition" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'condition')" data-clicked="false">
+                                        <span class="icon text-gray-600">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </span>
+                                        <span class="text">condition_analysis</span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Seurat Analyse -->
+                            <div class="card shadow mb-4 panel" id = "seurat_analyse_panel">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Seurat Analysis Parameters</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p>Adjust analysis-specific parameters here</p>
+                                    
+                                    <div class="form-group">
+                                        <label for="editableInput">resolution:</label>
+                                        <input type="text" class="form-control" id="resolution" placeholder="Requires a number">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="editableInput">num-pcs:</label>
+                                        <input type="text" class="form-control" id="pcs" placeholder="Default: 0 (Auto)">
+                                    </div>
+
                                     <div class="my-2"></div>
                                     <nav class="navbar navbar-expand navbar-light bg-light mb-4">
                                         <a class="navbar-brand" href="#">Annotation Method</a>
@@ -390,22 +428,22 @@
                                         <input type="text" class="form-control" id="custom_annotations" placeholder="Please paste list of annotations">
                                     </div>
                                     
-                                    <a href="#" id="identity" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'identity')" data-clicked="true">
+                                    <a href="#" id="analyse_identity" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'analyse_identity')" data-clicked="true">
                                         <span class="icon text-gray-600">
                                             <i class="fas fa-check"></i>
                                         </span>
                                         <span class="text">Identity</span>
                                     </a>
-                                    <div class="my-2"></div>
-                                    <a href="#" id="condition" class="btn btn-info btn-icon-split" onclick="changeButtonClass(event, 'condition')" data-clicked="false">
+
+                                    <a href="#" id="analyse_DE" class="btn btn-light btn-icon-split" onclick="changeButtonClass(event, 'analyse_DE')" data-clicked="false">
                                         <span class="icon text-gray-600">
-                                            <i class="fas fa-check"></i>
+                                            <i class="fas fa-arrow-right"></i>
                                         </span>
-                                        <span class="text">condition_analysis</span>
+                                        <span class="text">Perform DE</span>
                                     </a>
+                                    <div class="my-2"></div>
                                 </div>
                             </div>
-
 
                         <!-- end of second column-->    
                         </div>
@@ -500,16 +538,6 @@
             }
         }
 
-        document.querySelectorAll('.dropdown-item').forEach(function(item) {
-        item.addEventListener('click', function(event) {
-            var selectedValue = event.target.getAttribute('data-value');
-            if (selectedValue === 'inspect') {
-                document.getElementById('inspect_panel').style.display = 'block';
-            } else {
-                document.getElementById('inspect_panel').style.display = 'none';
-            }
-        });
-    });
 
     function toggleCustom(option) {
         if (option == 'custom') {
@@ -521,26 +549,43 @@
     }
 
     function workflowPanels(option) {
+        document.getElementById('workflowDropdown').dataset.value = option;
         switch(option) {
             case 'standard':
                 document.getElementById('pipeline_params_panel').style.display = 'block';
                 document.getElementById('seurat_panel').style.display = 'block';
-                document.getElementById('inspect_panel').style.display = 'block';
+                document.getElementById('inspect_panel').style.display = 'none';
+                document.getElementById('seurat_analyse_panel').style.display = 'none';
                 break;
             case 'demultiplex':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'none';
                 document.getElementById('inspect_panel').style.display = 'none';
+                document.getElementById('seurat_analyse_panel').style.display = 'none';
                 break;
             case 'seurat_only':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'block';
                 document.getElementById('inspect_panel').style.display = 'none';
+                document.getElementById('seurat_analyse_panel').style.display = 'block';
                 break;
-            case 'inspect_only':
-                document.getElementById('pipeline_params_panel').style.display = 'block';
+            case 'seurat_process':
+                document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'block';
+                document.getElementById('inspect_panel').style.display = 'none';
+                document.getElementById('seurat_analyse_panel').style.display = 'none';
+                break;
+            case 'seurat_analyse':
+                document.getElementById('pipeline_params_panel').style.display = 'none';
+                document.getElementById('seurat_panel').style.display = 'none';
+                document.getElementById('inspect_panel').style.display = 'none';
+                document.getElementById('seurat_analyse_panel').style.display = 'block';
+                break;
+            case 'inspect':
+                document.getElementById('pipeline_params_panel').style.display = 'none';
+                document.getElementById('seurat_panel').style.display = 'none';
                 document.getElementById('inspect_panel').style.display = 'block';
+                document.getElementById('seurat_analyse_panel').style.display = 'none';
                 break;
             default:
                 // code block

@@ -15,7 +15,8 @@ fn main() {
         .manage(AppState::new())
         .plugin(tauri_plugin_shell::init())
         .invoke_handler(tauri::generate_handler![commands::login_with_ssh, commands::ws_start, 
-            commands::get_project_list, commands::init_pipe, commands::cellxgene_startup, commands::cellxgene_teardown])
+            commands::get_project_list, commands::init_pipe, commands::cellxgene_startup, commands::cellxgene_teardown, 
+            commands::open_cellxgene_in_browser])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

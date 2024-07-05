@@ -8,6 +8,7 @@ use ssh_jumper::{
 use serde::Deserialize;
 use trust_dns_resolver::{Resolver, config::ResolverConfig, config::ResolverOpts};
 use std::io::Read;
+
 include!(concat!("../env_vars.rs"));
 
 // you need to set 
@@ -198,13 +199,57 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     };
 
     println!("Viper connected, sending cellxgene launch command");
-    let mut channel = sess.channel_session()
-        .map_err(|e| format!("Failed to open SSH channel: {}", e))?;
-    channel.exec(&command)
-        .map_err(|e| format!("Failed to execute command over SSH: {}", e))?;
+ 
+    let mut channel = match sess.channel_session() {
+        Ok(channel) => channel,
+        Err(e) => {
+            let err_msg = format!("Failed to open SSH channel: {}", e);
+            eprintln!("{}", &err_msg);
+            return Err(err_msg);
+        }
+    };
 
-    let _ = channel.wait_close();  // Close connection
-    drop(sess);
+    if let Err(err) = channel.exec(&command) {
+        let err_msg = format!("Error executing command: {}", err);
+        eprintln!("{}", &err_msg);
+        return Err(err_msg);
+    }
+    println!("sent docker command");
+
+    // Capture and print stdout and stderr
+    let mut stdout = String::new();
+    let mut stderr = String::new();
+
+    channel.read_to_string(&mut stdout).unwrap();
+    channel.stderr().read_to_string(&mut stderr).unwrap();
+
+    println!("Command output: {}", stdout);
+
+
+    // Check the exit status
+    //let exit_status = channel.exit_status().unwrap();
+
+    if let Err(err) = channel.send_eof() {
+        let err_msg = format!("Failed to send EOF: {}", err);
+        eprintln!("{}", &err_msg);
+        return Err(err_msg);
+    }
+  
+    loop {
+        match channel.eof() {
+            true => break,
+            false => {
+                println!("eof false");
+                tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+            },
+        }
+    }
+  
+    if let Err(err) = channel.wait_close() {
+        let err_msg = format!("Failed to wait for channel close: {}", err);
+        eprintln!("{}", &err_msg);
+        return Err(err_msg);
+    }
 
     Ok(())
 
@@ -222,25 +267,64 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     };
 
     // Define a helper function to execute commands over SSH
-    fn execute_ssh_command(session: &mut Session, command: &str) -> Result<(), String> {
-        let mut channel = session.channel_session().map_err(|e| format!("Failed to open SSH channel: {}", e))?;
-        channel.exec(command).map_err(|e| format!("Failed to execute SSH command: {}", e))?;
-        Ok(())
+    fn execute_ssh_command(session: &mut Session, command: &str) -> ssh2::Channel {
+        let mut channel = session.channel_session().unwrap();
+        channel.exec(command).unwrap();
+        println!("{}", command);
+
+        // Capture and print stdout and stderr
+        let mut stdout = String::new();
+        let mut stderr = String::new();
+
+        channel.read_to_string(&mut stdout).unwrap();
+        channel.stderr().read_to_string(&mut stderr).unwrap();
+
+        println!("Command output: {}", stdout);
+        println!("Error output: {}", stderr);
+
+        return channel
     }
 
     println!("Viper connected, sending cellxgene stop commands");
+    let command = format!(
+        "container_id=$(docker ps -qf \"ancestor=cellxgene\"); \
+        docker cp \"$container_id:/data/{}_new_annotations/\" /mnt/output/single_cell_RNAseq/{}/cellxgene/ && \
+        docker stop $container_id",
+        params.project, params.project
+    );
     // Get cellxgene container ID
-    execute_ssh_command(&mut sess, &format!("container_id=$(docker ps -qf \"ancestor=cellxgene\")"))?;
+    //execute_ssh_command(&mut sess, &format!("container_id=$(docker ps -qf \"ancestor=cellxgene\")"));
 
     // Copy Annotations from docker to output server
-    execute_ssh_command(&mut sess, &format!("docker cp \"$container_id:/data/{}_new_annotations/\" /mnt/output/single_cell_RNAseq/{}/cellxgene/", 
-    params.project, params.project))?;
+    //execute_ssh_command(&mut sess, &format!("docker cp \"$container_id:/data/{}_new_annotations/\" /mnt/output/single_cell_RNAseq/{}/cellxgene/", 
+    //params.project, params.project));
 
     // Stop the cellxgene container
-    execute_ssh_command(&mut sess, &format!("docker stop $container_id"))?;
+    //let mut channel = execute_ssh_command(&mut sess, &format!("docker stop $container_id"));
     
-    drop(sess);  // Close connection
-
+    let mut channel = execute_ssh_command(&mut sess, &command);
+    // Close connection
+    if let Err(err) = channel.send_eof() {
+        let err_msg = format!("Failed to send EOF: {}", err);
+        eprintln!("{}", &err_msg);
+        return Err(err_msg);
+    }
+  
+    loop {
+        match channel.eof() {
+            true => break,
+            false => {
+                println!("eof false");
+                tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+            },
+        }
+    }
+  
+    if let Err(err) = channel.wait_close() {
+        let err_msg = format!("Failed to wait for channel close: {}", err);
+        eprintln!("{}", &err_msg);
+        return Err(err_msg);
+    }
     Ok(())
 
  }

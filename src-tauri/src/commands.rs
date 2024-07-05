@@ -1,5 +1,6 @@
 use crate::{ssh, pipelines, socket, app_state, ftp_cmds};
 use tauri::{AppHandle, State, Manager};
+use webbrowser;
 include!(concat!("../env_vars.rs"));
 
 
@@ -97,6 +98,12 @@ pub async fn cellxgene_startup(params: ssh::CxgParams, app_handle: AppHandle) ->
         Ok(_) => {
             let message = "Launched CellXGene".to_string(); 
             app_handle.emit("cellxgene_result", &message).unwrap();
+            let url = "http://134.226.153.55:5005/";
+            tokio::time::sleep(tokio::time::Duration::from_millis(1000)).await;
+            match webbrowser::open(url) {
+                Ok(_) => println!("Opened '{}' successfully.", url),
+                Err(e) => eprintln!("Failed to open '{}': {}", url, e),
+            }
             Ok(message)
         },
         Err(e) => {
@@ -123,4 +130,13 @@ pub async fn cellxgene_teardown(params: ssh::CxgParams, app_handle: AppHandle) -
             return Err(err_msg);
         }
     } 
+}
+
+#[tauri::command]
+pub async fn open_cellxgene_in_browser() {
+    let url = "http://134.226.153.55:5005/";
+    match webbrowser::open(url) {
+        Ok(_) => println!("Opened '{}' successfully.", url),
+        Err(e) => eprintln!("Failed to open '{}': {}", url, e),
+    }
 }

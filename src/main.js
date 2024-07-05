@@ -36,19 +36,13 @@ async function login() {
   }
 }
 
-async function setupListener() {
-  const listener = await listen('websocket-message', (event) => {
-    console.log('WebSocket message received:', event.payload);
-    const messageObject = event.payload;
-    const messageText = messageObject.message;
-    ws_message = messageText;
-    document.getElementById('ws_status').textContent = messageText;
-  });
-}
-
 async function request_projects(pipeline) {
   const result = await invoke("get_project_list", { pipeType: pipeline });
    return result
+}
+
+async function openCXG() {
+  await invoke("open_cellxgene_in_browser")
 }
 
 // Collect and send params for bulk rnaseq
@@ -87,6 +81,18 @@ async function sendBulk() {
 
 async function sendSC() {
   document.getElementById('run_status').textContent = "Submitting run ...";
+  const visiblePanel = document.querySelector('.panel[style*="block"]');
+
+   // Helper function to safely get element value
+   function getValue(selector, panel = document) {
+    const element = panel.querySelector(selector);
+    return element ? element.value : null;
+  }
+  // Helper function to safely get element attribute
+  function getAttribute(selector, attribute, panel = document) {
+    const element = panel.querySelector(selector);
+    return element ? element.getAttribute(attribute) : null;
+  }
 
   params = {
       // Setup info
@@ -96,7 +102,7 @@ async function sendSC() {
       genome: document.getElementById('genomeDropdown').textContent,
       genome_version: document.getElementById('gencodeDropdown').textContent,
       machine: document.getElementById('machine').textContent,
-      workflow: document.getElementById('workflowDropdown').textContent,           
+      workflow: document.getElementById('workflowDropdown').dataset.value,           
 
       // Params
       demultiplex: document.getElementById('demultiplex').getAttribute('data-clicked'),
@@ -110,11 +116,11 @@ async function sendSC() {
       maxnfeature: document.getElementById('max-nfeature').value,
       mt: document.getElementById('max-percent-mt').value,
       ribo: document.getElementById('max-percent-ribo').value,
-      resolution: document.getElementById('resolution').value,
-      pcs: document.getElementById('pcs').value,
+      resolution: getValue('#resolution', visiblePanel),
+      pcs: getValue('#pcs', visiblePanel),
       integrate: document.getElementById('Integrate').getAttribute('data-clicked'), 
       nonlinear: document.getElementById('nonlinear').getAttribute('data-clicked'),
-      identity: document.getElementById('identity').getAttribute('data-clicked'),
+      identity: getAttribute('#identity', 'data-clicked', visiblePanel),
       condition: document.getElementById('condition').getAttribute('data-clicked'),
       annotation_method: document.getElementById('annotation_method').textContent,
       regress: document.getElementById('regress').value,
@@ -124,9 +130,9 @@ async function sendSC() {
       inspect_list: document.getElementById('inspect_list').value,
       annotation_file: document.getElementById('annotation_file').value, 
       meta_group: document.getElementById('meta_group').value,
-      de: document.getElementById('DE').getAttribute('data-clicked')
+      de: getAttribute('#DE', 'data-clicked', visiblePanel)
     }
-
+    console.log(params)
     await invoke("init_pipe", { 
       wrapper: {
         params: {
@@ -136,6 +142,19 @@ async function sendSC() {
     });
 }
 
+
+// LISTENERS 
+
+async function setupListener() {
+  const listener = await listen('websocket-message', (event) => {
+    console.log('WebSocket message received:', event.payload);
+    const messageObject = event.payload;
+    const messageText = messageObject.message;
+    ws_message = messageText;
+    document.getElementById('ws_status').textContent = messageText;
+  });
+}
+
 async function pipe_listener() {
   const listener = await listen('init_result', (event) => {
     console.log('Pipeline initiation status: ', event.payload);
@@ -143,13 +162,20 @@ async function pipe_listener() {
   });
 }
 
+async function cellxgene_listener() {
+  const listener = await listen('cellxgene_result', (event) => {
+    console.log('CellxGene status: ', event.payload);
+    document.getElementById('cellxgene_status').textContent = event.payload;
+  });
+}
+
+// end listeners
+
+
 window.addEventListener("DOMContentLoaded", () => {
   greetInputEl = document.querySelector("#greet-input");
   greetMsgEl = document.querySelector("#greet-msg");
-  //document.querySelector("#greet-form").addEventListener("submit", (e) => {
-   // e.preventDefault();
-   // greet();
-  //});
+ 
   if (document.getElementById('loginbtn')) { // Check if login button exist
     loginButton = document.getElementById('loginbtn');
     loginButton.addEventListener('click', login);
@@ -159,6 +185,9 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   if (document.getElementById('run_status')) { // Check if run button exist
     pipe_listener();                                // Set up the pipe listener
+  }
+  if (document.getElementById('cellxgene_status')) { // Check if run button exist
+    cellxgene_listener();                                // Set up the pipe listener
   }
 });
 
