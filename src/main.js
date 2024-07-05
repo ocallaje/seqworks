@@ -89,9 +89,9 @@ async function sendSC() {
     return element ? element.value : null;
   }
   // Helper function to safely get element attribute
-  function getAttribute(selector, attribute, panel = document) {
+  function getAttributeValue(selector, attribute, panel = document) {
     const element = panel.querySelector(selector);
-    return element ? element.getAttribute(attribute) : null;
+    return element ? element.getAttribute(attribute) : "false";
   }
 
   params = {
@@ -120,7 +120,7 @@ async function sendSC() {
       pcs: getValue('#pcs', visiblePanel),
       integrate: document.getElementById('Integrate').getAttribute('data-clicked'), 
       nonlinear: document.getElementById('nonlinear').getAttribute('data-clicked'),
-      identity: getAttribute('#identity', 'data-clicked', visiblePanel),
+      identity: getAttributeValue('#identity', 'data-clicked', visiblePanel),
       condition: document.getElementById('condition').getAttribute('data-clicked'),
       annotation_method: document.getElementById('annotation_method').textContent,
       regress: document.getElementById('regress').value,
@@ -130,7 +130,7 @@ async function sendSC() {
       inspect_list: document.getElementById('inspect_list').value,
       annotation_file: document.getElementById('annotation_file').value, 
       meta_group: document.getElementById('meta_group').value,
-      de: getAttribute('#DE', 'data-clicked', visiblePanel)
+      de: getAttributeValue('#DE', 'data-clicked', visiblePanel)
     }
     console.log(params)
     await invoke("init_pipe", { 
