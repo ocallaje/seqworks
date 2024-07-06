@@ -51,6 +51,12 @@
   document.addEventListener('DOMContentLoaded', function() {
     loadTemplate('sidebar.html', 'sidebarContent');
     loadTemplate('topbar.html', 'topbarContent', setTodaysDate);
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+    console.log("reflow")
+
   });
   
   // Function to load a template
