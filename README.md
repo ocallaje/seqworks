@@ -4,8 +4,6 @@ This app allows users to interact with the following custom RNAseq nextflow pipe
 * Single Cell RNAseq
 * CHIPseq (coming soon)
 
-## Dev Notes
-SeqWorks is built using the Tauri V2 framework, using rust to process user input and interface with servers, with HTML, JS and CSS for serving the frontend. You may experience layout issues if your display is set to custom scaling.
 
 ## Using SeqWorks
 ### Login
@@ -56,3 +54,7 @@ Data can be explored ad custom clusters can be annotated as per cellxgene docume
 - The "open cellxgene" button is only used to open any existing cellxgene containers.
 
 ![Screenshot 2024-07-07 013457](https://github.com/ocallaje/seqworks/assets/95083099/06ee3eb9-22f9-420e-b523-d52582e40f54)
+
+
+## Dev Notes
+SeqWorks is built using the Tauri V2 framework, using rust to process user input and interface with servers, with HTML, JS and CSS for serving the frontend. You may experience layout issues if your display is set to custom scaling.
