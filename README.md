@@ -55,4 +55,4 @@ Data can be explored ad custom clusters can be annotated as per cellxgene docume
 
 - The "open cellxgene" button is only used to open any existing cellxgene containers.
 
-  ![Screenshot 2024-07-07 012218](https://github.com/ocallaje/seqworks/assets/95083099/31e21b6a-44e1-4a43-80ac-e2b89b34a665)
+![Screenshot 2024-07-07 013457](https://github.com/ocallaje/seqworks/assets/95083099/06ee3eb9-22f9-420e-b523-d52582e40f54)
