@@ -18,6 +18,8 @@ The dashboard allows for monitoring active analysis runs using a nextflow monito
 
 
 ### Bulk RNAseq
+
+Runs the NF-RNAseq pipeline https://github.com/thomsonbc/NF-RNAseq
 1. Select and enter project details in the "setup" panel.
    * The "default" workflow will run everything from alignment to differential expression analysis
    * The "QC only" workflow will run alignment and QC reports without differential expression analysis
@@ -34,6 +36,8 @@ The dashboard allows for monitoring active analysis runs using a nextflow monito
 
 
 ### Single Cell RNAseq
+
+Runs the NF-scRNAseq pipeline https://github.com/ocallaje/NF-scRNAseq
 ##### Run Pipeline
 1. Select and enter project details in the "setup" panel.
    * The "standard" workflow will run everything from raw BCL files to alignment to processing clusters (see below)
