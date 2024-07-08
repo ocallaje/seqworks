@@ -81,16 +81,35 @@ async function sendBulk() {
 
 async function sendSC() {
   document.getElementById('run_status').textContent = "Submitting run ...";
-  const visiblePanel = document.querySelector('.panel[style*="block"]');
+  const visiblePanels = document.querySelectorAll('.panel[style*="block"]');
 
    // Helper function to safely get element value
-   function getValue(selector, panel = document) {
-    const element = panel.querySelector(selector);
+   function getValue(selector, visiblePanels = document) {
+    if (visiblePanels.length > 1) {
+      for (let panel of visiblePanels) {
+        var element = panel.querySelector(selector);
+        if (element) {
+          break;
+        }
+      }
+    } else {
+      var element = visiblePanels[0].querySelector(selector);
+    }
+    
     return element ? element.value : null;
   }
   // Helper function to safely get element attribute
-  function getAttributeValue(selector, attribute, panel = document) {
-    const element = panel.querySelector(selector);
+  function getAttributeValue(selector, attribute, visiblePanels = document) {
+    if (visiblePanels.length > 1) {
+      for (let panel of visiblePanels) {
+        var element = panel.querySelector(selector);
+        if (element) {
+          break;
+        }
+      }
+    } else {
+      var element = visiblePanels[0].querySelector(selector);
+    }
     return element ? element.getAttribute(attribute) : "false";
   }
 
@@ -116,11 +135,11 @@ async function sendSC() {
       maxnfeature: document.getElementById('max-nfeature').value,
       mt: document.getElementById('max-percent-mt').value,
       ribo: document.getElementById('max-percent-ribo').value,
-      resolution: getValue('#resolution', visiblePanel),
-      pcs: getValue('#pcs', visiblePanel),
+      resolution: getValue('#resolution', visiblePanels),
+      pcs: getValue('#pcs', visiblePanels),
       integrate: document.getElementById('Integrate').getAttribute('data-clicked'), 
       nonlinear: document.getElementById('nonlinear').getAttribute('data-clicked'),
-      identity: getAttributeValue('#identity', 'data-clicked', visiblePanel),
+      identity: getAttributeValue('#identity', 'data-clicked', visiblePanels),
       condition: document.getElementById('condition').getAttribute('data-clicked'),
       annotation_method: document.getElementById('annotation_method').textContent,
       regress: document.getElementById('regress').value,
@@ -130,7 +149,7 @@ async function sendSC() {
       inspect_list: document.getElementById('inspect_list').value,
       annotation_file: document.getElementById('annotation_file').value, 
       meta_group: document.getElementById('meta_group').value,
-      de: getAttributeValue('#DE', 'data-clicked', visiblePanel)
+      de: getAttributeValue('#DE', 'data-clicked', visiblePanels)
     }
     console.log(params)
     await invoke("init_pipe", { 
