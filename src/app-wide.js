@@ -51,6 +51,8 @@
   document.addEventListener('DOMContentLoaded', function() {
     loadTemplate('sidebar.html', 'sidebarContent');
     loadTemplate('topbar.html', 'topbarContent', setTodaysDate);
+
+    window.dispatchEvent(new Event('resize'));
   });
   
   // Function to load a template
@@ -100,18 +102,26 @@ function changeButtonClass(event, buttonId) {
   event.preventDefault();             // prevent auto scroll to top of page
 
   // Find the visible panel
-  const visiblePanel = document.querySelector('.panel[style*="block"]');
-  if (!visiblePanel) {
-    console.warn('No visible panel found');
-    return;
+  const visiblePanels  = document.querySelectorAll('.panel[style*="block"]');
+  if (!visiblePanels) {
+    //console.log('No visible panels found');
+    var button = document.getElementById(buttonId);
+  } else{
+    if (visiblePanels.length > 1) {
+      console.log("multiple visible panels found")
+      for (let panel of visiblePanels) {
+        var button = panel.querySelector(`#${buttonId}`);
+        if (button) {
+          break;
+        }
+      }
+    } else {
+      //console.log("1 visible panel found")
+      var button = visiblePanels[0].querySelector(`#${buttonId}`);
+    }
+    
   }
-  //var button = document.getElementById(buttonId);
-  const button = visiblePanel.querySelector(`#${buttonId}`);
-  if (!button) {
-    console.warn(`Button with ID '${buttonId}' not found in visible panel`);
-    return;
-  }
-  
+  //var button = document.getElementById(buttonId); 
   if (button.classList.contains('btn-info')) {
       button.classList.remove('btn-info');
       button.classList.add('btn-light');
