@@ -267,7 +267,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     };
 
     // Define a helper function to execute commands over SSH
-    fn execute_ssh_command(session: &mut Session, command: &str) -> ssh2::Channel {
+    fn execute_ssh_command(session: &mut Session, command: &str) -> (ssh2::Channel, String) {
         let mut channel = session.channel_session().unwrap();
         channel.exec(command).unwrap();
         println!("{}", command);
@@ -282,7 +282,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
         println!("Command output: {}", stdout);
         println!("Error output: {}", stderr);
 
-        return channel
+        return (channel, stderr)
     }
 
     println!("Viper connected, sending cellxgene stop commands");
@@ -302,7 +302,15 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     // Stop the cellxgene container
     //let mut channel = execute_ssh_command(&mut sess, &format!("docker stop $container_id"));
     
-    let mut channel = execute_ssh_command(&mut sess, &command);
+    let (mut channel, stoperr) = execute_ssh_command(&mut sess, &command);
+    if !stoperr.is_empty() {
+        println!("Command execution had errors: {}, ... forcing stop", stoperr);
+        let forcestop_cmd = format!(
+            "container_id=$(docker ps -qf \"ancestor=cellxgene\"); \
+            docker stop $container_id"
+        ); 
+        let (_channel, _forcestoperr) = execute_ssh_command(&mut sess, &forcestop_cmd);
+    }
     // Close connection
     if let Err(err) = channel.send_eof() {
         let err_msg = format!("Failed to send EOF: {}", err);

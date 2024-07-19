@@ -1,4 +1,7 @@
 # SeqWorks
+
+See the original docs here https://github.com/ocallaje/seqworks
+
 This app allows users to interact with the following custom RNAseq nextflow pipelines
 * Bulk RNAseq
 * Single Cell RNAseq
