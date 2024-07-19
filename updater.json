@@ -1,19 +1,19 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.4",
   "notes": "See the assets to download this version and install.",
-  "pub_date": "2024-07-08T11:42:48.456Z",
+  "pub_date": "2024-07-19T14:57:19.612Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SVNyaEdaM3NyL25OMHdRRHlQMEVkWXVtS1hUWkZNYklZbitjWDJIazF1Zi9zekVrR1I0NmNja2tuN3ErYjZuRExpREg3dDFPMXY5YmQ5UDdhWXVHendVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIwNDM4NjQxCWZpbGU6U2VxV29ya3MuYXBwLnRhci5negp4V0liWURYVE9qQmlxUVZKOEhDVkY0YTBxallvbnQwL0FLb0pZdnhtbHJSQlFnQTB0NTVkQ3lmZkZTU3J1Rmo1M3FGT1Z0QU13UGRvOTlGNWRNR1NEUT09Cg==",
-      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.3/SeqWorks_aarch64.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SVpDNFpuQ1J0QkpJS0xTNXJ5TnJ1d1NqWGg5VStUcE5wYm0vZkVLQjd6cGV4ME1jaVFDTGpUWE8wMDVUQ210REZ3VVlmM0JNZVkxSlI5UDhoUE1HU0FRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxNDAwNzUyCWZpbGU6U2VxV29ya3MuYXBwLnRhci5negpMeHh6bUdPWW1NVVdjejF2OU4va1pBaE56VllEaFJ5MnVScnJVdWdMZTB2UEJBSEkzMmZWaEV4NDdNclRCU3lCUUlRSkJFOFBwNkpQS2d3clJ0dkdEdz09Cg==",
+      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.4/SeqWorks_aarch64.app.tar.gz"
     },
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SVdyRXBXazQxMjlMZnVCUW5UUzBQRTJ5L3VscUpJR2lXd0huQ01qTkV5c2V6RDV2bGxQTDlDajFDVk9oR3VoVmw5Y0Z6UVpZb04vUjdkaFpJTjhGZVFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIwNDM4ODY2CWZpbGU6c2VxLXdvcmtzXzAuMC4zX2FtZDY0LkFwcEltYWdlCllzWnVrdkhqL3I0L2hNdk9yaEc1SmtQMnJieFhJS3p3VFdPSm1RTS9OVHF3UWZDcWRNMXgrOGFVbFRmbmNPRGVYcVpVMFFwbFZXSkorL0hoOWdJcUJBPT0K",
-      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.3/seq-works_0.0.3_amd64.AppImage"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SVJ4Y0s3cWNSeWoxNzBBU056bVhzZThZT3dvNDBsRUw3TE02VjZJeHpNcGZUNXA1d0tqcCtUYVZrK3FBVW1lYmRyTEwrdGo4eW00Z01Vb2cvQzB3SEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxNDAwODc5CWZpbGU6c2VxLXdvcmtzXzAuMC40X2FtZDY0LkFwcEltYWdlClFwZW5lVXQxRzBScW9JSk9MampXZkptQkUyUVFGQUJuWm53RzlZQ2IwVEx4UzZTY2I3YWxjUURtaFJmUU5iY0F0ZkdkaStwOEw0OUtVQVlTMjQ0MkRnPT0K",
+      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.4/seq-works_0.0.4_amd64.AppImage"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SVFGbUJYYWNTQVQ2VmtrU1pUUVQ0dHpYNDVmWEFuVVBvczNla1pLTjVxTVBhY0Y0aVliSDB5emRzcEtjNDFEM2JmK2NYUW1ucTN4STJ1RGdOSzJ5Znd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIwNDM4OTYxCWZpbGU6U2VxV29ya3NfMC4wLjNfeDY0X2VuLVVTLm1zaS56aXAKZ2VXeHdNaHVNOGhXcjdBNEhZOTYza3NmSlNTN0cyOWgrU21rcjY4b1lpbWd2aEo4USs5QmJ0VXVKcFM1SWxwODlRVnlXWFdmcXZMVHpnMUZjTEpxRFE9PQo=",
-      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.3/SeqWorks_0.0.3_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTWEc2emZHMWR0SWJFM2FhV0UvaHVKNjZpWjlVVE5KMXliSS9SL1hHbHRxL0x0S2R5Q3NXY3hSc3M5N2dzRnFCbGd2d0I3Mno2dkdnQW1mVmt6NG1LNnFNRWVRRDgra3dzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxNDAxMDMyCWZpbGU6U2VxV29ya3NfMC4wLjRfeDY0X2VuLVVTLm1zaS56aXAKZkV1bVFjbUlRL01aV3hrRU44Uk0ySXUxRUJXWWxBaFZBTWtQc3d4eXZrSlBsMnl3Q3g1REIyS1FSUldqT3VjRmFyZmZ5YjgwTS90RHBXOEo0aFN5QlE9PQo=",
+      "url": "https://github.com/ocallaje/seqworks/releases/download/app-v0.0.4/SeqWorks_0.0.4_x64_en-US.msi.zip"
     }
   }
 }
