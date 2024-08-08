@@ -131,7 +131,7 @@ pub async fn ssh_chain(rnaseq_cmd: &str) -> Result<i32, String> {
     // Execute SSH command on the final destination server via the intermediary host
     println!("Executing SSH command on final destination...");
     let mut channel = sess.channel_session().unwrap();
-    let command = format!("ssh reaper {}", rnaseq_cmd);
+    let command = format!("ssh reaper << 'EOF'\n{}\nEOF", rnaseq_cmd);
     println!("{}", command);
 
     if let Err(err) = channel.exec(&command) {
