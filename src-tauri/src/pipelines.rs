@@ -465,9 +465,11 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
 
     let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");
 
+    
     let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
-    let next_pre = "nextflow run /home/carolina/pipelines/NF-scRNAseq/main.nf -params-file";
-    let rnaseq_cmd = format!("{} << 'INNER_EOF' \n{} /mnt/input/data_singlecell/{}/nextflowParams.json \nINNER_EOF", tmux_pre, next_pre, &app_params.project);
+    let tmux_keys = format!("tmux send-keys -t {}", custom_run_name);
+    let next_pre = "\"nextflow run /home/carolina/pipelines/NF-scRNAseq/main.nf -params-file";
+    let rnaseq_cmd = format!("{} \n{} {} /mnt/input/data_singlecell/{}/nextflowParams.json\" C-m", tmux_pre, tmux_keys, next_pre, &app_params.project);
     
     Ok(rnaseq_cmd)
 }
