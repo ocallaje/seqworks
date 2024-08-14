@@ -140,3 +140,11 @@ pub async fn open_cellxgene_in_browser() {
         Err(e) => eprintln!("Failed to open '{}': {}", url, e),
     }
 }
+
+//[tauri::command]
+//pub async fn check_server_availability(address: &str, timeout: Duration) -> bool {
+//   match TcpStream::connect_timeout(&address.parse().unwrap(), timeout) {
+//       Ok(_) => true,  // Connection was successful
+//       Err(_) => false, // Connection failed
+//    }
+//}
