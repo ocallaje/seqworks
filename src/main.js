@@ -69,7 +69,7 @@ async function sendBulk() {
       deseq_model: document.getElementById('modelfield').value,
       deseq_ref_var: document.getElementById('reffield').value
   }
-
+  console.log(params)
   await invoke("init_pipe", { 
     wrapper: {
       params: {
