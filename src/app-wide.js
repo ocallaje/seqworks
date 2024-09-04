@@ -108,7 +108,7 @@ function changeButtonClass(event, buttonId) {
     var button = document.getElementById(buttonId);
   } else{
     if (visiblePanels.length > 1) {
-      console.log("multiple visible panels found")
+      //console.log("multiple visible panels found")
       for (let panel of visiblePanels) {
         var button = panel.querySelector(`#${buttonId}`);
         if (button) {

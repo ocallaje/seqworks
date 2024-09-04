@@ -272,10 +272,11 @@ impl SCParams {
 }
 
 #[derive(Debug, serde::Serialize, PartialEq)]
+#[allow(non_camel_case_types)]
 pub enum Workflow {
-    Default,
-    QcOnly,
-    DeAnalysisOnly,
+    default,
+    qc_only,
+    de_analysis_only,
 }
 
 #[derive(Debug, serde::Serialize, PartialEq)]
@@ -294,12 +295,13 @@ pub enum SCGenome {
 }
 
 pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> Result<String, String> {
-    let custom_run_name: String;
+    let mut custom_run_name: String;
     if app_params.custom_run_name.is_empty() {
         custom_run_name = "".to_string();
         } else {
         custom_run_name = app_params.custom_run_name;
     }
+    custom_run_name = custom_run_name.replace(" " ,"_");
     
     let strandedness = if app_params.strandedness.parse().map_err(|e| format!("Failed to parse strandedness: {}", e))?
      { "reverse".to_string() } else { "forward".to_string() };
@@ -314,7 +316,7 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
     } else {
         contrast = app_params.deseq_model.split('~').last().unwrap_or("").to_string();
     };
-
+    
     let params = BulkParams::new(
         format!("/mnt/input/data/{}/samplesheet_reads.csv", app_params.project),
         format!("/mnt/output/bulk_RNAseq/{}", app_params.project),
@@ -337,9 +339,9 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
         },
         app_params.genome_version,
         match app_params.workflow.as_str() {
-            "de_analysis_only" => Workflow::DeAnalysisOnly,
-            "default" => Workflow::Default,
-            "qc_only" => Workflow::QcOnly,
+            "de_analysis_only" => Workflow::de_analysis_only,
+            "default" => Workflow::default,
+            "qc_only" => Workflow::qc_only,
             // Add more options as needed
             _ => return Err("Invalid workflow option".to_string()), // Handle invalid option
         },
@@ -351,18 +353,20 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
         "http://CampbellLab.quickconnect.to/d/f/623389304994967313".to_string(),
     );
     
-
-    //let encoded = serde_json::to_string(&params).map_err(|e| format!("Failed to encode JSON: {}", e))?;
-    //std::fs::write("nextflowParams.json", encoded.as_bytes()).map_err(|e| format!("Failed to write JSON file: {}", e))?;
     
     // put this json file in project folder
     let _ = ftp_cmds::ftp_put_file(&app_params.project, params.to_key_value_map(), "bulk");
 
-    let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
-    let next_pre = "nextflow run /home/carolina/git/NF-RNAseq/main.nf -params-file";
-    let rnaseq_cmd = format!("{} '{} /mnt/input/data/{}/nextflowParams.json'", tmux_pre, next_pre, &app_params.project);
-    //let rnaseq_cmd = format!("{} /mnt/input/data/{}/nextflowParams.json", next_pre, &app_params.project);
+    //let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
+    //let next_pre = "nextflow run /home/carolina/git/NF-RNAseq/main.nf -params-file";
+    //let rnaseq_cmd = format!("{} '{} /mnt/input/data/{}/nextflowParams.json'", tmux_pre, next_pre, &app_params.project);
     
+    let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name); // Assuming custom_RunName is optional
+    let tmux_keys = format!("tmux send-keys -t {}", custom_run_name);
+    let next_pre = "\"nextflow run /home/carolina/pipelines/NF-RNAseq/main.nf -params-file";
+    let rnaseq_cmd = format!("{} \n{} {} /mnt/input/data/{}/nextflowParams.json\" C-m", tmux_pre, tmux_keys, next_pre, &app_params.project);
+
+
     //println!("{:?}", params);
     Ok(rnaseq_cmd)
     
@@ -370,12 +374,13 @@ pub fn parse_bulk_params(app_params: AppParams, state: State<'_, AppState>) -> R
 
 
 pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> Result<String, String> {
-    let custom_run_name: String;
+    let mut custom_run_name: String;
     if app_params.custom_run_name.is_empty() {
         custom_run_name = "".to_string();
         } else {
         custom_run_name = app_params.custom_run_name;
     }
+    custom_run_name = custom_run_name.replace(" ","_");
 
     let username:String = {
         let username = state.username.lock().unwrap();
