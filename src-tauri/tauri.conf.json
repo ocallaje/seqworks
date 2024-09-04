@@ -1,6 +1,6 @@
 {
   "productName": "SeqWorks",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "identifier": "seqworks",
   "build": {
     "frontendDist": "../src"
