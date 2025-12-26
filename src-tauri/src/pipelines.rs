@@ -391,7 +391,7 @@ pub fn parse_sc_params(app_params: AppSCParams, state: State<'_, AppState>) -> R
     if app_params.chemistry == "true" {
         chemistry = "chromiumV3".to_string();
     } else {
-        chemistry = "chromiumV2".to_string();
+        chemistry = "chromium".to_string();
     }
 
     let params: SCParams = SCParams::new(
