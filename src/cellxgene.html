@@ -28,7 +28,7 @@
     <script src="vendor/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="main.js"></script>
+    <script type="module" src="./main.js"></script>
     <script src="app-wide.js"></script>
 
 </head>
@@ -200,7 +200,8 @@
     </div>
 
     <!-- Page-specific functions -->
-    <script>
+    <script type="module">
+        import { request_projects } from './main.js';
         document.addEventListener('DOMContentLoaded', async function() {
         // Send request for project lists on page load
         try {

@@ -1,0 +1,10 @@
+<script type="module">
+  import { handleKeycloakCallback } from "../backend.js";
+
+  try {
+    await handleKeycloakCallback();
+    window.location.href = "/dashboard.html";
+  } catch (e) {
+    console.error("Login failed", e);
+  }
+</script>

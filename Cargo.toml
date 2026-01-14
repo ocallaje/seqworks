@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "src-tauri",
+  "crates/pipeline-core",
+  "api"
+]
+resolver = "2"

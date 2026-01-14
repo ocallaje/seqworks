@@ -1,18 +1,36 @@
-const { invoke } = window.__TAURI__.core;
-const { listen } = window.__TAURI__.event;
+import {
+  greethandler,
+  registerhandler,
+  loginWithSSH,
+  getProjectList,
+  initPipe,
+  startWebsocket,
+  listenEvent,
+  openCellxgeneInBrowser,
+  cellxgeneStartup,
+  cellxgeneTeardown
+} from "./backend.js";
+
+
+//const { invoke } = window.__TAURI__.core;
+//const { listen } = window.__TAURI__.event;
 //import { emit, listen } from '@tauri-apps/api/event'
 
 let greetInputEl;
 let greetMsgEl;
 let registerUrl;
 let ws_message;
+let loginButton;
+let keycloakButton;
 
 async function greet() {
-  greetMsgEl.textContent = await invoke("greet", { name: greetInputEl.value });
+  //greetMsgEl.textContent = await invoke("greet", { name: greetInputEl.value });
+  greetMsgEl.textContent = await greethandler(greetInputEl.value)
 }
 
 async function register() {
-  registerUrl.textContent = await invoke("register");
+  //registerUrl.textContent = await invoke("register");
+  registerUrl.textContent = await registerhandler("register");
 }
 
 async function login() {
@@ -20,7 +38,8 @@ async function login() {
   const password = document.getElementById('InputPassword').value;
   loginButton.textContent = "Please Wait...";
   try {
-    const authenticated = await invoke("login_with_ssh", { user: email, pass: password });
+    //const authenticated = await invoke("login_with_ssh", { user: email, pass: password });
+    const authenticated = await loginWithSSH(email, password);
       if (authenticated) {
           console.log('Authentication successful');
           window.location.href = 'dashboard.html';  // Redirect to dashboard
@@ -36,17 +55,37 @@ async function login() {
   }
 }
 
-async function request_projects(pipeline) {
-  const result = await invoke("get_project_list", { pipeType: pipeline });
+export function loginWithKeycloak() {
+  const clientId = "seqworks-ui";
+  const realm = "seqworks";
+  const keycloakBase = "https://keycloak.example.com";
+  const redirectUri = encodeURIComponent(
+    window.location.origin + "/auth/callback"
+  );
+
+  const url =
+    `${keycloakBase}/realms/${realm}/protocol/openid-connect/auth` +
+    `?client_id=${clientId}` +
+    `&redirect_uri=${redirectUri}` +
+    `&response_type=code` +
+    `&scope=openid profile email`;
+
+  window.location.href = url;
+}
+
+export async function request_projects(pipeline) {
+  //const result = await invoke("get_project_list", { pipeType: pipeline });
+  const result = await getProjectList(pipeline)
    return result
 }
 
-async function openCXG() {
-  await invoke("open_cellxgene_in_browser")
+export async function openCXG() {
+  //await invoke("open_cellxgene_in_browser")
+  await openCellxgeneInBrowser
 }
 
 // Collect and send params for bulk rnaseq
-async function sendBulk() {
+export async function sendBulk() {
   document.getElementById('run_status').textContent = "Submitting run ...";
 
   const params =  {
@@ -69,17 +108,27 @@ async function sendBulk() {
       deseq_model: document.getElementById('modelfield').value,
       deseq_ref_var: document.getElementById('reffield').value
   }
-  console.log(params)
-  await invoke("init_pipe", { 
+  //console.log(params)
+  //await invoke("init_pipe", { 
+   // wrapper: {
+    //  params: {
+     //   AppParams: params // Ensure this matches your Rust enum variant
+      //}
+    //}
+  //});
+  const payload = {
     wrapper: {
       params: {
-        AppParams: params // Ensure this matches your Rust enum variant
+        AppParams: params
       }
     }
-  });
+  };
+
+  console.log(payload);
+  await initPipe(payload);
 }    
 
-async function sendSC() {
+export async function sendSC() {
   document.getElementById('run_status').textContent = "Submitting run ...";
   const visiblePanels = document.querySelectorAll('.panel[style*="block"]');
 
@@ -152,20 +201,29 @@ async function sendSC() {
       de: getAttributeValue('#DE', 'data-clicked', visiblePanels)
     }
     console.log(params)
-    await invoke("init_pipe", { 
-      wrapper: {
-        params: {
-          AppSCParams: params // Ensure this matches your Rust enum variant
-        }
+    //await invoke("init_pipe", { 
+    //  wrapper: {
+    //    params: {
+    //      AppSCParams: params // Ensure this matches your Rust enum variant
+    //    }
+    //  }
+    //});
+
+    await initPipe({
+    wrapper: {
+      params: {
+        AppSCParams: params
       }
-    });
+    }
+  });
 }
 
 
 // LISTENERS 
 
 async function setupListener() {
-  const listener = await listen('websocket-message', (event) => {
+  //const listener = await listen('websocket-message', (event) => {
+  const listener = await listenEvent('websocket-message', (event) => {
     console.log('WebSocket message received:', event.payload);
     const messageObject = event.payload;
     const messageText = messageObject.message;
@@ -175,14 +233,16 @@ async function setupListener() {
 }
 
 async function pipe_listener() {
-  const listener = await listen('init_result', (event) => {
+  //const listener = await listen('init_result', (event) => {
+  const listener = await listenEvent('init_result', (event) => {
     console.log('Pipeline initiation status: ', event.payload);
     document.getElementById('run_status').textContent = event.payload;
   });
 }
 
 async function cellxgene_listener() {
-  const listener = await listen('cellxgene_result', (event) => {
+  //const listener = await listen('cellxgene_result', (event) => {
+  const listener = await listenEvent('cellxgene_result', (event) => {
     console.log('CellxGene status: ', event.payload);
     document.getElementById('cellxgene_status').textContent = event.payload;
   });
@@ -195,9 +255,11 @@ window.addEventListener("DOMContentLoaded", () => {
   greetInputEl = document.querySelector("#greet-input");
   greetMsgEl = document.querySelector("#greet-msg");
  
-  if (document.getElementById('loginbtn')) { // Check if login button exist
-    loginButton = document.getElementById('loginbtn');
+  loginButton = document.getElementById('loginbtn');
+  if (loginButton) { // Check if login button exist
     loginButton.addEventListener('click', login);
+    keycloakButton = document.getElementById('login-keycloak');
+    keycloakButton.addEventListener('click', loginWithKeycloak);
   }
   if (document.getElementById('ws_status')) { // Check if login button exist
     setupListener();                                // Set up the websocket listener
@@ -211,21 +273,23 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function cellxgene_start() {
-  await invoke('cellxgene_startup', {
-    params: {
+export async function cellxgene_start() {
+  //await invoke('cellxgene_startup', {
+    const params = {
       project: document.getElementById("projectDropdown").textContent,
       h5_file: document.getElementById("h5").textContent
-    }
-  });
+    };
+  //});
+  await cellxgeneStartup(params);
 }
 
-async function cellxgene_stop() {
-  await invoke('cellxgene_teardown', {
-    params: {
+export async function cellxgene_stop() {
+  //await invoke('cellxgene_teardown', {
+    const params = {
       project: document.getElementById("projectDropdown").textContent,
       h5_file: document.getElementById("h5").textContent
-    }
-  });
+    };
+    await cellxgeneTeardown(params);
+  //});
 }
 

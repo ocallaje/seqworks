@@ -10,7 +10,7 @@
     "build:macos": "tauri build --target macos"
   },
   "devDependencies": {
-    "@tauri-apps/cli": ">=2.0.0-beta.0"
+    "@tauri-apps/cli": "^2.9.6"
   },
   "dependencies": {
     "@tauri-apps/plugin-dialog": "^2.0.0-beta.3",

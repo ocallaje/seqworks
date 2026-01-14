@@ -1,5 +1,6 @@
-use crate::{ssh, pipelines, socket, app_state, ftp_cmds};
-use tauri::{AppHandle, State, Manager};
+use crate::{ssh, socket, app_state, ftp_cmds};
+use pipeline_core::{pipelines::{self, PipelineResult}, states};
+use tauri::{AppHandle, State, Emitter};
 use webbrowser;
 include!(concat!("../env_vars.rs"));
 
@@ -55,11 +56,14 @@ pub async fn get_project_list(pipe_type: &str) -> Result<Vec<String>, Vec<String
 
 
 #[tauri::command]
-pub async fn init_pipe(wrapper: app_state::AppParamsWrapper, state: State<'_, app_state::AppState>, app_handle: AppHandle) -> Result<String, String> {
-    let rnaseq_cmd: String = match wrapper.params {
-        app_state::AppParamsEnum::AppParams(params) => {
-            match pipelines::parse_bulk_params(params, state) {
-                Ok(rnaseq_cmd) => rnaseq_cmd,
+pub async fn init_pipe(wrapper: states::AppParamsWrapper, state: State<'_, app_state::AppState>, app_handle: AppHandle) -> Result<String, String> {
+    let username = state.username.lock().unwrap()
+        .clone()
+        .ok_or("No username in state")?;
+    let pipe_result: pipelines::PipelineResult = match wrapper.params {
+        states::AppParamsEnum::AppParams(params) => {
+            match pipelines::parse_bulk_params(params, &username) {
+                Ok(pipe_result) => pipe_result,
                 Err(e) => {
                     eprintln!("Failed to get Bulk RNAseq command: {}", e);
                     app_handle.emit("init_result", "Failed to parse parameters, check inputs").unwrap();
@@ -67,9 +71,9 @@ pub async fn init_pipe(wrapper: app_state::AppParamsWrapper, state: State<'_, ap
                 }
             }
         }
-        app_state::AppParamsEnum::AppSCParams(params) => {
-            match pipelines::parse_sc_params(params, state) {
-                Ok(rnaseq_cmd ) => rnaseq_cmd.to_string(),
+        states::AppParamsEnum::AppSCParams(params) => {
+            match pipelines::parse_sc_params(params, &username) {
+                Ok(pipe_result ) => pipe_result,
                 Err(e) => {
                     eprintln!("Failed to get Single Cell RNAseq command: {}", e);
                     app_handle.emit("init_result", "Failed to parse parameters, check inputs").unwrap();
@@ -79,7 +83,7 @@ pub async fn init_pipe(wrapper: app_state::AppParamsWrapper, state: State<'_, ap
         }
     };
  
-    match ssh::ssh_chain(&rnaseq_cmd).await {
+    match ssh::ssh_chain(&pipe_result.rnaseq_cmd).await {
         Ok(_exit_status) => app_handle.emit("init_result", "Pipeline Initialised! Please wait for completion email").unwrap(),
         Err(e) => {
             eprintln!("Failed to get Single Cell RNAseq command: {}", e);
@@ -88,7 +92,7 @@ pub async fn init_pipe(wrapper: app_state::AppParamsWrapper, state: State<'_, ap
         }
     };
     
-    Ok(rnaseq_cmd)
+    Ok(pipe_result.rnaseq_cmd)
 
 }
 

@@ -21,15 +21,16 @@ reqwest = { version = "0.11", features = ["blocking"] }  # For performing HTTP r
 tokio = { version = "1", features = ["full"] }
 tokio-tungstenite = "0.21.0"
 futures = "0.3"
-tauri-plugin-websocket = "2.0.0-beta.5"
+tauri-plugin-websocket = "2.4.1"
 suppaftp = "5.3.0"
 csv = "1.1.6"
 ssh2 = "0.9"
 ssh_jumper = "0.4.0"
-tauri-plugin-updater = { version = "2.0.0-beta", features = ["rustls-tls"] }
-tauri-plugin-dialog = "2.0.0-beta"
+tauri-plugin-updater = { version = "2.9.0", features = ["rustls-tls"] }
+tauri-plugin-dialog = "2.4.2"
 trust-dns-resolver = "0.23.2"
 webbrowser = "1.0.1"
+pipeline-core = { path = "../crates/pipeline-core" }
 
 [dev-dependencies]
 tauri = { version = "2.0.0-beta", features = ["test"] }

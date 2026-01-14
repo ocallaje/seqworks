@@ -1,7 +1,7 @@
 use crate::app_state::AppState;
 //use futures::SinkExt;
 use futures::StreamExt;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, State, Emitter};
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
 // Private Structs

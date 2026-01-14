@@ -28,7 +28,7 @@
     <script src="vendor/jquery.easing.min.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="main.js"></script>
+    <script type="module" src="./main.js"></script>
     <script src ="app-wide.js"></script>
 
 </head>
@@ -367,7 +367,8 @@
 
 </body>
 
-<script type="text/javascript">    
+<script type="module">    
+    import { sendBulk, request_projects } from './main.js';
     document.addEventListener('DOMContentLoaded', async function() {
         // Attach event listener to the run button 
         const runbtn = document.getElementById('runBulk');
