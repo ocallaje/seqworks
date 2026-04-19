@@ -37,6 +37,7 @@ async function login() {
   const email = document.getElementById('InputEmail').value;
   const password = document.getElementById('InputPassword').value;
   loginButton.textContent = "Please Wait...";
+  console.log("loggin in...")
   try {
     //const authenticated = await invoke("login_with_ssh", { user: email, pass: password });
     const authenticated = await loginWithSSH(email, password);
@@ -55,26 +56,44 @@ async function login() {
   }
 }
 
-export function loginWithKeycloak() {
-  const clientId = "seqworks-ui";
-  const realm = "seqworks";
-  const keycloakBase = "https://keycloak.example.com";
-  const redirectUri = encodeURIComponent(
-    window.location.origin + "/auth/callback"
-  );
-
-  const url =
-    `${keycloakBase}/realms/${realm}/protocol/openid-connect/auth` +
-    `?client_id=${clientId}` +
-    `&redirect_uri=${redirectUri}` +
-    `&response_type=code` +
-    `&scope=openid profile email`;
-
-  window.location.href = url;
+// Run on the callback page after Keycloak redirects back
+// Make sure this runs on whatever page handles /auth/callback or you
+// can just check the URL path
+if (window.location.pathname === "/auth/callback" || window.location.search.includes("access_token")) {
+  handleOidcCallback();
 }
 
+// example for auth endpoints
+//const token = localStorage.getItem("auth_token");
+//const response = await fetch("http://localhost:8000/api/some_endpoint", {
+//  method: "POST",
+//  headers: {
+//    "Authorization": `Bearer ${token}`,
+//    "Content-Type": "application/json",
+//  },
+//  body: JSON.stringify(payload),
+//});
+
+
+
+
+async function handleOidcCallback() {
+  // The Axum callback handler returns JSON — fetch it
+  // Read token from URL params
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("access_token");
+
+  if (token) {
+    localStorage.setItem("auth_token", token);
+    window.location.href = "dashboard.html";
+  } else {
+    console.error("No token received");
+    window.location.href = "index.html";
+  }
+}
+
+
 export async function request_projects(pipeline) {
-  //const result = await invoke("get_project_list", { pipeType: pipeline });
   const result = await getProjectList(pipeline)
    return result
 }
@@ -126,6 +145,8 @@ export async function sendBulk() {
 
   console.log(payload);
   await initPipe(payload);
+  
+
 }    
 
 export async function sendSC() {

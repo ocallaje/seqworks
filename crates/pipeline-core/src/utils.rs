@@ -1,29 +1,28 @@
-use std::str;
-use std::io::Cursor;
+use std::{str, fs};
+use std::path::PathBuf;
 use suppaftp::FtpStream;
+use std::fs::File;
 include!(concat!("env_vars.rs"));
 
-pub fn parse_de_samplesheet(project: &str, contrast_var: String, ref_var: String) -> Result<String, String> {
-    let mut ftp_stream = match ftp_connect_and_login() {
-        Ok(stream) => stream,
-        Err(e) => return Err(e),
-    };
+pub fn parse_de_samplesheet(
+    root_dir: &PathBuf,
+    project: &str, 
+    contrast_var: String, 
+    ref_var: String
+) -> Result<String, String> {
+ 
+    let csv_path = root_dir
+        .join("data")
+        .join(project)
+        .join("samplesheet_deseq.csv");
 
-    // Change into a new directory, relative to the one we are currently in.
-    let project_dir = format!("RNAseq_datasets/data/{}", project);
-    let _ = ftp_stream.cwd(project_dir).unwrap();
-    println!("Current directory: {}", ftp_stream.pwd().unwrap());
+    // Open the CSV file
+    let file = File::open(&csv_path)
+        .map_err(|e| format!("Failed to open {:?}: {}", csv_path, e))?;
 
-    // Retrieve (GET) a file from the FTP server in the current working directory.
-    let data = ftp_stream.retr_as_buffer("samplesheet_deseq.csv").unwrap();
-    let binding = data.into_inner();
-    let csv_data = str::from_utf8(&binding).map_err(|e| e.to_string())?;
+    // Create CSV reader
+    let mut rdr = csv::Reader::from_reader(file);
 
-    // Terminate the connection to the server.
-    let _ = ftp_stream.quit();
-
-    // Parse CSV data
-    let mut rdr = csv::Reader::from_reader(csv_data.as_bytes());
     let headers = rdr.headers().map_err(|e| e.to_string())?;
     let mut all_targets = Vec::new();
     let mut contrast_column_index = None;
@@ -65,6 +64,74 @@ pub fn parse_de_samplesheet(project: &str, contrast_var: String, ref_var: String
 
 }
 
+pub fn get_dirs(
+    data_root: &PathBuf,
+    pipe_type: &str,
+) -> Result<Vec<String>,String> {
+
+    let mut base = data_root.clone();
+
+    match pipe_type {
+        "bulk" => base.push("data"),
+        "single_cell" => base.push("data_singlecell"),
+        _ => return Err("Invalid pipe_type".to_string()),
+    }
+
+    let entries = fs::read_dir(&base)
+        .map_err(|e| format!("Failed to read dir {:?}: {}", base, e))?;
+
+    // List all entries in the current directory.
+    let dirs = entries
+        .filter_map(|entry| entry.ok())
+        .filter(|e| e.path().is_dir())
+        .filter_map(|e| e.file_name().into_string().ok())
+        .collect();
+    
+    Ok(dirs)
+}
+
+
+pub fn save_nextflow_params(
+    root_dir: &PathBuf,
+    project: &str, 
+    params_map: serde_json::Map<String, serde_json::Value>, 
+    pipe_type: &str
+) -> Result<u64, String> {
+    
+    let data_dir: String = match pipe_type {
+        "bulk" => String::from("RNAseq_datasets/data/"),
+        "single_cell" => String::from("RNAseq_datasets/data_singlecell/"),
+        _ => {
+            eprintln!("incompatible directory");
+            String::from("default_directory/")
+        }
+    };
+
+    let project_dir = root_dir
+        .join(data_dir)
+        .join(project);
+    
+    let file_path = project_dir.join("nextflowParams.json");
+
+    let json_data = serde_json::to_string_pretty(&params_map).unwrap();       // Serialize the struct to JSON
+    // write to disk
+    fs::write(&file_path, json_data.as_bytes())
+        .map_err(|e| format!("Failed to write file {:?}: {}", file_path, e))?; 
+
+    println!("Successfully wrote JSON parameters to {:?}", file_path);
+
+
+    Ok(json_data.len() as u64)
+}
+
+
+pub fn build_tmux_command(custom_run_name: String) -> (String, String) {
+    // Function to create the tmux commands prior to initiating nextflow
+    let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name);
+    let tmux_keys = format!("tmux send-keys -t {}", custom_run_name);
+
+    (tmux_pre, tmux_keys)
+}
 
 
 fn ftp_connect_and_login() -> Result<FtpStream, String> {
@@ -85,41 +152,4 @@ fn ftp_connect_and_login() -> Result<FtpStream, String> {
             Err(err_msg)
         }
     }
-}
-
-
-pub fn ftp_put_file(project: &str, params_map: serde_json::Map<String, serde_json::Value>, pipe_type: &str) -> Result<u64, String> {
-    let mut ftp_stream = match ftp_connect_and_login() {
-        Ok(stream) => stream,
-        Err(e) => return Err(e),
-    };
-    let data_dir: String = match pipe_type {
-        "bulk" => String::from("RNAseq_datasets/data/"),
-        "single_cell" => String::from("RNAseq_datasets/data_singlecell/"),
-        _ => {
-            eprintln!("incompatible directory");
-            String::from("default_directory/")
-        }
-    };
-    let project_dir = format!("{}{}", data_dir, project);
-    let _ = ftp_stream.cwd(project_dir).unwrap();
-
-    // PUT file to the current working directory of the server.
-    let json_data = serde_json::to_string_pretty(&params_map);             // Serialize the struct to JSON
-    let mut reader = Cursor::new(json_data.unwrap().into_bytes());   // Convert JSON data to Cursor
-    let bytes_uploaded = ftp_stream.put_file("nextflowParams.json", &mut reader);
-    println!("Successfully wrote JSON parameters");
-
-    let _ = ftp_stream.quit();  // Terminate the connection to the server.
-
-    Ok(bytes_uploaded.unwrap())
-}
-
-
-pub fn build_tmux_command(custom_run_name: String) -> (String, String) {
-    // Function to create the tmux commands prior to initiating nextflow
-    let tmux_pre = format!("tmux new-session -d -s {}", custom_run_name);
-    let tmux_keys = format!("tmux send-keys -t {}", custom_run_name);
-
-    (tmux_pre, tmux_keys)
 }

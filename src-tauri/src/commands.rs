@@ -1,6 +1,7 @@
 use crate::{ssh, socket, app_state, ftp_cmds};
 use pipeline_core::{pipelines::{self, PipelineResult}, states};
 use tauri::{AppHandle, State, Emitter};
+use std::path::PathBuf;
 use webbrowser;
 include!(concat!("../env_vars.rs"));
 
@@ -60,9 +61,11 @@ pub async fn init_pipe(wrapper: states::AppParamsWrapper, state: State<'_, app_s
     let username = state.username.lock().unwrap()
         .clone()
         .ok_or("No username in state")?;
-    let pipe_result: pipelines::PipelineResult = match wrapper.params {
+
+    let root_dir = PathBuf::from("/mnt/input/");
+    let pipe_result: PipelineResult = match wrapper.params {
         states::AppParamsEnum::AppParams(params) => {
-            match pipelines::parse_bulk_params(params, &username) {
+            match pipelines::parse_bulk_params(root_dir, params, &username) {
                 Ok(pipe_result) => pipe_result,
                 Err(e) => {
                     eprintln!("Failed to get Bulk RNAseq command: {}", e);
@@ -72,7 +75,7 @@ pub async fn init_pipe(wrapper: states::AppParamsWrapper, state: State<'_, app_s
             }
         }
         states::AppParamsEnum::AppSCParams(params) => {
-            match pipelines::parse_sc_params(params, &username) {
+            match pipelines::parse_sc_params(root_dir, params, &username) {
                 Ok(pipe_result ) => pipe_result,
                 Err(e) => {
                     eprintln!("Failed to get Single Cell RNAseq command: {}", e);

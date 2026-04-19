@@ -1,12 +1,13 @@
 use crate::{states, utils};
 use serde_json::{Map, Value};
+use std::path::PathBuf;
 
 pub struct PipelineResult {
     pub rnaseq_cmd: String,
     pub params_map: Map<String, Value>,
 }
 
-pub fn parse_bulk_params(app_params: states::AppParams, username: &str) -> Result<PipelineResult, String> {
+pub fn parse_bulk_params(root_dir: PathBuf, app_params: states::AppParams, username: &str) -> Result<PipelineResult, String> {
     let mut custom_run_name: String;
     if app_params.custom_run_name.is_empty() {
         custom_run_name = "".to_string();
@@ -57,13 +58,13 @@ pub fn parse_bulk_params(app_params: states::AppParams, username: &str) -> Resul
         app_params.deseq_model.replace(" ", ""),
         app_params.deseq_ref_var.clone(),
         contrast.clone(),
-        utils::parse_de_samplesheet(&app_params.project, contrast.clone(), app_params.deseq_ref_var)?,
+        utils::parse_de_samplesheet(&root_dir, &app_params.project, contrast.clone(), app_params.deseq_ref_var)?,
         "http://CampbellLab.quickconnect.to/d/f/623389304994967313".to_string(),
     );
     
     
     // put this json file in project folder
-    let _ = utils::ftp_put_file(&app_params.project, params.to_key_value_map(), "bulk");
+    let _ = utils::save_nextflow_params(&root_dir, &app_params.project, params.to_key_value_map(), "bulk");
     
     // Build command
     let (tmux_pre, tmux_keys) = utils::build_tmux_command(custom_run_name);
@@ -78,7 +79,7 @@ pub fn parse_bulk_params(app_params: states::AppParams, username: &str) -> Resul
 }
 
 
-pub fn parse_sc_params(app_params: states::AppSCParams, username: &str) -> Result<PipelineResult, String> {
+pub fn parse_sc_params(root_dir: PathBuf, app_params: states::AppSCParams, username: &str) -> Result<PipelineResult, String> {
     let mut custom_run_name: String;
     if app_params.custom_run_name.is_empty() {
         custom_run_name = "".to_string();
@@ -168,7 +169,7 @@ pub fn parse_sc_params(app_params: states::AppSCParams, username: &str) -> Resul
         },
     );
 
-    let _ = utils::ftp_put_file(&app_params.project, params.to_key_value_map(), "single_cell");
+    let _ = utils::save_nextflow_params(&root_dir, &app_params.project, params.to_key_value_map(), "single_cell");
 
     
     // Build command

@@ -1,3 +1,5 @@
+
+
 function isTauri() {
   return typeof window !== "undefined" && window.__TAURI__;
 }
@@ -14,7 +16,7 @@ if (isTauri()) {
 }
 
 
-const API_BASE = "/api"; // Axum prefix
+const API_BASE = "http://localhost:8000/api"; // Axum prefix
 
 
 /* -------------------------
@@ -91,8 +93,22 @@ export async function getProjectList(pipeType) {
     return invokeFn("get_project_list", { pipeType });
   }
 
-  const res = await fetch(`${API_BASE}/projects?pipeType=${pipeType}`);
-  return res.json();
+  const payload = { pipe_type: pipeType };
+  const res = await fetch(`${API_BASE}/get_project_dirs`, {
+    method: "POST", // Use POST if you want a JSON body
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload), // Convert JS object to JSON string
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to get projects: ${res.statusText}`);
+  }
+
+  const data = await res.json();
+
+  return data.dirs;
 }
 
 /* -------------------------
@@ -104,17 +120,25 @@ export async function initPipe(payload) {
     return invokeFn("init_pipe", payload);
   }
 
+  console.log(payload.wrapper)
   const res = await fetch(`${API_BASE}/init_pipe`, {
     method: "POST",
     headers: {
-    "Authorization": `Bearer ${token}`,
+    //"Authorization": `Bearer ${token}`,
     "Content-Type": "application/json"
   },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload.wrapper)
   });
 
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const data = await res.json();
+
+  if (!res.ok) {
+    document.getElementById('run_status').textContent = data.message;
+    throw new Error(data.message || "Unknown server error");
+  }
+  document.getElementById('run_status').textContent = data.status;
+
+return data;
 }
 
 /* -------------------------
@@ -176,4 +200,45 @@ export async function cellxgeneTeardown(params) {
   });
 
   return res.json();
+}
+
+
+/* -------------------------
+   Dashboard
+-------------------------- */
+export async function loadDashboardMetrics() {
+    const token = localStorage.getItem("auth_token");
+
+    try {
+        const res = await fetch(`${API_BASE}/dashboard/metrics`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch metrics");
+
+        const data = await res.json();
+
+        document.getElementById("metric-active-workflows").textContent =
+            `${data.active_workflows} running, ${data.queued_workflows} queued`;
+
+        document.getElementById("metric-samples-today").textContent =
+            data.samples_today;
+        document.getElementById("metric-samples-sub").textContent =
+            `${data.samples_completed} completed`;
+
+        document.getElementById("metric-avg-runtime").textContent =
+            `${data.avg_runtime_mins}m`;
+        document.getElementById("metric-runtime-sub").textContent =
+            data.runtime_trend;
+
+        const failedEl = document.getElementById("metric-failed-runs");
+        failedEl.textContent = data.failed_runs_24h;
+        if (data.failed_runs_24h > 0) {
+            failedEl.classList.add("text-danger");
+            failedEl.classList.remove("text-gray-800");
+        }
+
+    } catch (err) {
+        console.error("Metrics load failed:", err);
+    }
 }

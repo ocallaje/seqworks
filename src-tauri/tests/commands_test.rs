@@ -39,7 +39,7 @@ mod tests {
                 url: "http://tauri.localhost".parse().unwrap(),
                 body: tauri::ipc::InvokeBody::default(),
                 headers: Default::default(),
-                //invoke_key: tauri::test::INVOKE_KEY.to_string(),
+                invoke_key: tauri::test::INVOKE_KEY.to_string(),
             },
         ).map(|b| b.deserialize::<String>().unwrap());
     }

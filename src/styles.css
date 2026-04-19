@@ -47,6 +47,18 @@
   box-sizing: border-box;
 }
 
+.btn-google {
+    background-color: #2c3e7a;
+    border-color: #2c3e7a;
+    color: white;
+}
+
+.btn-google:hover {
+    background-color: #1a2555;
+    border-color: #1a2555;
+    color: white;
+}
+
 html {
   font-family: sans-serif;
   line-height: 1.15;
