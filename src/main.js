@@ -83,33 +83,44 @@ async function sendSC() {
   document.getElementById('run_status').textContent = "Submitting run ...";
   const visiblePanels = document.querySelectorAll('.panel[style*="block"]');
 
+    if (!visiblePanels || visiblePanels.length === 0) {
+      return null;
+    }
+
+    let element = null;
+
    // Helper function to safely get element value
    function getValue(selector, visiblePanels = document) {
     if (visiblePanels.length > 1) {
       for (let panel of visiblePanels) {
-        var element = panel.querySelector(selector);
+        element = panel.querySelector(selector);
         if (element) {
           break;
         }
       }
     } else {
-      var element = visiblePanels[0].querySelector(selector);
+      element = visiblePanels[0].querySelector(selector);
     }
     
     return element ? element.value : null;
   }
   // Helper function to safely get element attribute
   function getAttributeValue(selector, attribute, visiblePanels = document) {
+    if (!visiblePanels || visiblePanels.length === 0) {
+      return "false";
+    }
+
+    let element = null;
+
     if (visiblePanels.length > 1) {
       for (let panel of visiblePanels) {
-        var element = panel.querySelector(selector);
-        if (element) {
-          break;
-        }
+        element = panel.querySelector(selector);
+        if (element) break;
       }
     } else {
-      var element = visiblePanels[0].querySelector(selector);
+      element = visiblePanels[0].querySelector(selector);
     }
+
     return element ? element.getAttribute(attribute) : "false";
   }
 

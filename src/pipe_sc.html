@@ -445,6 +445,11 @@
                                 </div>
                             </div>
 
+                            <!-- Demultiplex Panel -->
+                            <div class="card shadow mb-4 panel" id = "demultiplex_panel">
+
+                            </div>
+
                         <!-- end of second column-->    
                         </div>
 
@@ -556,36 +561,42 @@
                 document.getElementById('seurat_panel').style.display = 'block';
                 document.getElementById('inspect_panel').style.display = 'none';
                 document.getElementById('seurat_analyse_panel').style.display = 'none';
+                document.getElementById('demultiplex_panel').style.display = 'none';
                 break;
             case 'demultiplex':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'none';
                 document.getElementById('inspect_panel').style.display = 'none';
                 document.getElementById('seurat_analyse_panel').style.display = 'none';
+                document.getElementById('demultiplex_panel').style.display = 'block';
                 break;
             case 'seurat_only':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'block';
                 document.getElementById('inspect_panel').style.display = 'none';
                 document.getElementById('seurat_analyse_panel').style.display = 'block';
+                document.getElementById('demultiplex_panel').style.display = 'none';
                 break;
             case 'seurat_process':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'block';
                 document.getElementById('inspect_panel').style.display = 'none';
                 document.getElementById('seurat_analyse_panel').style.display = 'none';
+                document.getElementById('demultiplex_panel').style.display = 'none';
                 break;
             case 'seurat_analyse':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'none';
                 document.getElementById('inspect_panel').style.display = 'none';
                 document.getElementById('seurat_analyse_panel').style.display = 'block';
+                document.getElementById('demultiplex_panel').style.display = 'none';
                 break;
             case 'inspect':
                 document.getElementById('pipeline_params_panel').style.display = 'none';
                 document.getElementById('seurat_panel').style.display = 'none';
                 document.getElementById('inspect_panel').style.display = 'block';
                 document.getElementById('seurat_analyse_panel').style.display = 'none';
+                document.getElementById('demultiplex_panel').style.display = 'none';
                 break;
             default:
                 // code block
