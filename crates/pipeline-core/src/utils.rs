@@ -2,7 +2,7 @@ use std::{str, fs};
 use std::path::PathBuf;
 use suppaftp::FtpStream;
 use std::fs::File;
-include!(concat!("env_vars.rs"));
+//include!(concat!("env_vars.rs"));
 
 pub fn parse_de_samplesheet(
     root_dir: &PathBuf,
@@ -134,8 +134,8 @@ pub fn build_tmux_command(custom_run_name: String) -> (String, String) {
 }
 
 
-fn ftp_connect_and_login() -> Result<FtpStream, String> {
-    let mut ftp_stream = match FtpStream::connect(FTP_SERVER) {
+fn ftp_connect_and_login(ftp_server: &str) -> Result<FtpStream, String> {
+    let mut ftp_stream = match FtpStream::connect(ftp_server) {
         Ok(stream) => stream,
         Err(e) => {
             let err_msg = format!("Failed to connect to FTP server: {}", e);

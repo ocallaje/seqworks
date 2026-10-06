@@ -1,0 +1,39 @@
+name: Local Config
+version: 1.0.0
+schema: v1
+models:
+  - name: Jeff-GPT-Auditor
+    provider: openai
+    model: openai/gpt-oss-20b
+    apiBase: http://134.226.153.30:30071/v1
+    contextLength: 32768
+    capabilities:
+      - tool_use
+    roles:
+      - chat
+      - edit
+      - apply
+    
+
+  - name: Qwen-3-Coder
+    provider: openai
+    model: Qwen/Qwen3-Coder-30B-A3B-Instruct
+    apiBase: http://134.226.153.30:30072/v1
+    contextLength: 16384
+    #apiKey: dummy
+    capabilities:
+      - tool_use
+    roles:
+      - autocomplete
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      maxTokens: 10000
+      
+context:
+  - provider: file
+  - provider: code
+  - provider: diff
+  - provider: currentFile
+  - provider: terminal

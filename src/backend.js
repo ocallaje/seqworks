@@ -16,7 +16,7 @@ if (isTauri()) {
 }
 
 
-const API_BASE = "http://localhost:8000/api"; // Axum prefix
+const API_BASE = "http://seqworks-backend.seqworks.svc.cluster.local/api"; // Axum prefix
 
 
 /* -------------------------

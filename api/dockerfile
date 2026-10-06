@@ -11,15 +11,15 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y pkg-config libssl-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Cache dependencies first
-COPY api/Cargo.toml ./api/
-COPY crates/pipeline-core/Cargo.toml ./crates/pipeline-core/Cargo.toml 
+#COPY api/Cargo.toml ./api/
+#COPY crates/pipeline-core/Cargo.toml ./crates/pipeline-core/Cargo.toml 
 
 # Dummy files for dependency caching
-RUN mkdir -p api/src crates/pipeline-core/src && \
-    echo "fn main() {}" > api/src/main.rs && \
-    echo "" > crates/pipeline-core/src/lib.rs
+#RUN mkdir -p api/src crates/pipeline-core/src && \
+#    echo "fn main() {}" > api/src/main.rs && \
+#    echo "" > crates/pipeline-core/src/lib.rs
 
-RUN cd api && cargo build --release
+#RUN cd api && cargo build --release
 
 # Copy real source
 COPY api ./api
@@ -35,4 +35,4 @@ COPY --from=builder /app/api/target/release/seqworks-api /usr/local/bin/seqworks
 
 EXPOSE 8000
 
-CMD ["seqworks-api"]
+CMD ["/usr/local/bin/seqworks-api"]
