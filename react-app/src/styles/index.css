@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Source+Code+Pro:wght@400;600&display=swap');
+
+@import './theme.css';
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: var(--app-color-primary);
+  --color-secondary: var(--app-color-secondary);
+  --color-surface: var(--app-color-surface);
+  --color-bg-page: var(--app-color-bg-page);
+  --color-success: var(--app-color-success);
+  --color-warning: var(--app-color-warning);
+  --color-error: var(--app-color-error);
+}
+
+html,
+body {
+  @apply h-full bg-bg-page text-gray-900 dark:bg-bg-page dark:text-gray-200;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+code,
+.code {
+  @apply rounded bg-surface px-1.5 py-0.5 font-mono;
+}

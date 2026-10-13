@@ -1,0 +1,23 @@
+:root {
+  /* Light theme */
+  --app-color-primary: #0069c0;
+  --app-color-secondary: #ff6a00;
+  --app-color-surface: #ffffff;
+  --app-color-bg-page: #f8f9fa;
+  --app-color-success: #28a745;
+  --app-color-warning: #ffc107;
+  --app-color-error: #dc3545;
+
+  /* Dark theme */
+  --app-color-primary-dark: #00a8ff;
+  --app-color-secondary-dark: #ffa500;
+  --app-color-surface-dark: #1e1e1e;
+  --app-color-bg-page-dark: #121212;
+}
+
+.dark {
+  --app-color-primary: var(--app-color-primary-dark);
+  --app-color-secondary: var(--app-color-secondary-dark);
+  --app-color-surface: var(--app-color-surface-dark);
+  --app-color-bg-page: var(--app-color-bg-page-dark);
+}
